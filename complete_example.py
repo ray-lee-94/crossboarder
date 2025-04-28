@@ -1,3 +1,4 @@
+# %%
 import os
 from openai import AzureOpenAI
 from dotenv import load_dotenv
@@ -28,7 +29,17 @@ def llm_process_generator():
         stream=False
     )
     return response.choices[0].message.content
+# %%
 
+from agents import Agent, Runner
+
+agent = Agent(name="Assistant", instructions="You are a helpful assistant")
+
+result = Runner.run_sync(agent, "Write a haiku about recursion in programming.")
+print(result.final_output)
+
+
+# %%
 
 def main():
     full_response = llm_process_generator()
