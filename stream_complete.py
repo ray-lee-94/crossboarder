@@ -36,13 +36,14 @@ def llm_process_generator(user_message):
 
 
 def main():
-    user_message = "帮我写一笔篇文章说明当代年轻人为什么喜欢看小说，1000字以上"
+    user_message = "帮我写一笔篇文章说明当代年轻人为什么喜欢看小说，100字以上"
     full_response = ""
     for line in llm_process_generator(user_message):
       if line is not  None:
         if len(line.choices) > 0:
           delta = line.choices[0].delta.content
-          full_response += delta
+
+          full_response += delta if delta is not None else ""
           print(delta)
 
     print(full_response)
