@@ -30,6 +30,13 @@ class ResponseModel(BaseModel):
     message: str
     data: Optional[Any] = None
 
+class ProductInfo(BaseModel):
+    url: str
+    name: str
+    price: float
+    features: List[str]
+    target: str
+
 # 自定义OpenAPI文档路由
 @app.get("/api/docs", include_in_schema=False)
 async def get_documentation():
@@ -92,6 +99,25 @@ async def version() -> ResponseModel:
         message="Version information", 
         data={"version": app.version}
     )
+
+
+@app.post("/api/product/crawl", tags=["Product"])
+async def crawl_product(url: str, platform: str) -> ResponseModel:
+    """爬取商品信息"""
+    product_info = ProductInfo(url=url, platform=platform)
+    return ResponseModel(success=True, message="Product crawled successfully", data=product_info)
+
+
+@app.post("/api/influencer/list", tags=["Influencer"])
+async def list_influencer(product_info: ProductInfo, platform: str) -> ResponseModel:
+    """推荐达人"""
+    return ResponseModel(success=True, message="Product crawled successfully", data={})
+                                                                                     
+                                                                                    
+@app.post("/api/email/intent", tags=["Email"])
+async def email_intent(history: List[any]) -> ResponseModel:
+    """邮件意图识别"""
+    return ResponseModel(success=True, message="Product crawled successfully", data={})
 
 def main():
     """应用入口函数"""
