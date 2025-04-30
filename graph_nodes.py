@@ -81,7 +81,7 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
     errors=[]
 
     social_media_analyst_prompt_template = ChatPromptTemplate.from_template(social_media_analyst_Prompt)
-    # chain = social_media_analyst_prompt_template | llm | str_parser
+    chain = social_media_analyst_prompt_template | llm | JsonOutputParser()
 
     for influencer in influencer_data:
         influencer_id = influencer["id"]
@@ -97,23 +97,11 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
                 continue
             
             print(f" Analyzing content for platform: {platform_name}...")
-            # Prepare context for the prompt
-            # Need to fill in the placeholders in social_media_analyst_Prompt
-            # Assuming social_media_analyst_prompt has placeholders like {达人名称} and {分析平台}
-            # And expects the content list somehow (e.g., passed in context or formatted into the prompt)
-            # Simplified: Pass content list as JSON string for now.
-            # Production: Might need a more robust way to format this input.
-            formatted_sma_prompt =social_media_analyst_prompt_template.replace("[请在此处插入达人名称]", influencer_name)\
-                                                 .replace("[请在此处插入平台名称: 如 youtube, tiktok, ins]", platform_name)
-            # The prompt needs to know HOW to use the content list. Let's assume we pass it in the input dict
-            sma_prompt_filled = ChatPromptTemplate.from_template(formatted_sma_prompt)
-            sma_chain_filled =  sma_prompt_filled | llm | JsonOutputParser()
 
             try:
-                 # Pass the content list data to the chain
-                # The prompt needs to be adjusted to expect `内容数据列表` as input variable
-                input_dict = {"内容数据列表": json.dumps(content_list, ensure_ascii=False, indent=2)}
-                parsed_result= sma_chain_filled.invoke(input_dict)
+                input_dict={"达人名称": influencer_name, "分析平台": platform_name, "内容列表": content_list}
+
+                parsed_result=chain.invoke(input_dict)
 
                 if parsed_result and isinstance(parsed_result, dict): # Basic check
                     print(f"      Analysis successful for {platform_name}.")
