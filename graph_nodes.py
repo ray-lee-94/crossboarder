@@ -60,8 +60,9 @@ def analyze_product_node(state: MarketingWorkFlowState):
     chain = prompt_template | llm | JsonOutputParser()
 
     try:
-        parsed_result= chain.invoke({"商品信息JSON对象": json.dumps(product_info,ensure_ascii=False)})
+        parsed_result= chain.invoke({"product_data_json": json.dumps(product_info,ensure_ascii=False)})
 
+        print(f"Product analysis result: {parsed_result}")
         if parsed_result and isinstance(parsed_result, dict) and "FeatureTags" in parsed_result and \
             "AudienceTags" in parsed_result and "UsageScenarioTags" in parsed_result:
             print("Product analysis successful.")
@@ -82,25 +83,27 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
 
     social_media_analyst_prompt_template = ChatPromptTemplate.from_template(social_media_analyst_Prompt)
     chain = social_media_analyst_prompt_template | llm | JsonOutputParser()
-
     for influencer in influencer_data:
-        influencer_id = influencer["id"]
-        influencer_name = influencer["name"]
+        influencer_id = influencer["influencerId"]
+        influencer_name = influencer["influencerName"]
         platforms_data = influencer.get("platforms",[])
         print(f" Analyzing platforms for influencer {influencer_name} {influencer_id}...")
 
-        influencer_platform_results=[]
+        influencer_platform_results={}
 
         for platform_name, content_list in platforms_data.items():
             if not content_list:
                 print( f"   Skipping {platform_name} for {influencer_name} as no content found.")
                 continue
-            
-            print(f" Analyzing content for platform: {platform_name}...")
 
             try:
-                input_dict={"达人名称": influencer_name, "分析平台": platform_name, "内容列表": content_list}
+                content_list_json_str = json.dumps(content_list, ensure_ascii=False, indent=2) # Serialize the list
 
+                input_dict = {
+                    "influencerName": influencer_name,
+                    "platform": platform_name,
+                    "content_list_json": content_list_json_str # Pass the JSON string
+                }
                 parsed_result=chain.invoke(input_dict)
 
                 if parsed_result and isinstance(parsed_result, dict): # Basic check
@@ -114,7 +117,6 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
                 errors.append(f"Platform analysis error for {influencer_name} - {platform_name}: {e}")
 
         all_platform_analysis[influencer_id] = influencer_platform_results
-
     return {"platform_analysis": all_platform_analysis, "error_messages": state.error_messages + errors}
 
 
@@ -144,22 +146,21 @@ def generate_influencer_profiles_node(state: MarketingWorkFlowState):
         # Prepare input for analysisPromt - expects a LIST of platform details
         platform_details_list = []
         for platform, details in platform_details_map.items():
-            # Add platform name and other key metrics if available/needed by the prompt
-            details_with_platform = details.copy()
-            details_with_platform['platform'] = platform
-            # Add other known metrics if needed (e.g., follower count if available in influencer_data)
-            platform_details_list.append(details_with_platform)
+            platform_details_list.append(details)
 
         # Format the prompt - replace placeholders
-        formatted_analysis_prompt =analysis_prompt_template.replace("[请在此处插入达人ID]", influencer_id)\
-                                                  .replace("[请在此处插入为该达人选择的主要名称]", influencer_name)
-        analysis_prompt_template_filled = ChatPromptTemplate.from_template(formatted_analysis_prompt)
-        analysis_chain_filled = analysis_prompt_template_filled | llm | safe_json_parser
+        analysis_prompt_template = ChatPromptTemplate.from_template(influencer_analysis_Prompt)
+        analysis_chain = analysis_prompt_template | llm | JsonOutputParser()
 
         try:
-            # Input expects '平台账号详情数据列表'
-            input_dict = {"平台账号详情数据列表": json.dumps(platform_details_list, ensure_ascii=False, indent=2)}
-            parsed_result= analysis_chain_filled.invoke(input_dict)
+            print(platform_details_list)
+            platform_details_json_str = json.dumps(platform_details_list, ensure_ascii=False, indent=2)
+            input_dict = {
+                "influencer_id": influencer_id,
+                "influencer_name": influencer_name,
+                "platform_details_list_json": platform_details_json_str
+                }
+            parsed_result= analysis_chain.invoke(input_dict)
 
             if parsed_result and isinstance(parsed_result, dict): # Basic check
                 print(f"    Profile generated successfully for {influencer_name}.")
@@ -424,3 +425,5 @@ intent_workflow.add_edge("analyze_reply_intent",END)
 intent_app=intent_workflow.compile()
 
 print("Intent analysis workflow compiled successfully!")
+
+

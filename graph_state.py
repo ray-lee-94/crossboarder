@@ -24,18 +24,18 @@ class PlatformAnalysisResult(BaseModel):
     Args:
         BaseModel (_type_): _description_
     """
-    受众性别: str
-    受众年龄: str
-    地区_国家: str
-    语言: str
-    内容格式: List[str]
-    近期内容总结: str
-    视频风格: str
-    内容调性: str
-    垂类深度: str
-    推广能力评估: str
-    品牌重复率: str
-    内容展示场景: List[str]
+    audienceGender: str # 
+    audienceAge: str
+    regionCountry: str
+    language: str
+    contentFormat: List[str]
+    recentContentSummary: str
+    videoStyle: str
+    contentTone: str
+    categoryDepth: str
+    promotionAbility: str
+    brandRepetitionRate: str
+    contentScene: List[str]
 
 class InfluencerProfile(BaseModel):
     # Matches the output structure of analysisPromt

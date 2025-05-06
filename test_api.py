@@ -67,33 +67,153 @@ class TestMarketingWorkflowEndpoint:
         url = f"{BASE_URL}/api/marketing/run"
         payload = {
           "product_info": {
-            "ProductName": "Test Recorder V1",
-            "Description": "A simple audio recorder for basic tests.",
-            "Price": 19.99,
-            "Specifications": "64GB, USB-C" # FIX: Added Specifications
-            # Add other Optional fields as None or default if needed by prompts
-            # "Brand": None,
-            # "AmazonCategory": None,
-            # "Rating": None,
-            # "ReviewCount": None,
-            # "ProductURL": None
+            "ProductName": "Datacolor Spyder Print - 高级数据分析和校准工具,可实现最佳打印效果,非常适合摄影师、平面设计师和印刷专业人士。",
+            "Brand": "HP",
+            "AmazonCategory": "配件和耗材",
+            "Specifications": ": 条形阅读分光色度计可在几分钟内创建自定义配置文件,彩色和黑白目标易于读取。 包括改进的 SpyderGuide 以方便轻松准确地创建配置文件 | {1 } {1 } {1 } {1 } {1 } {1 } {1 } {1 } {1 } { 1 } { 1 }\ | 独特的SpyderProof功能为您提供一系列精心挑选的图像,从摄影师的角度评估细节。 Profile Softproof 可用于每个独特的打印机配置文件。 | 数据彩色Spyder Print是摄影师和设计师的领先校准和分析工具,让您完全掌控打印输出,实现画廊品质的打印效果。 | Datacolor 和 Adobe 携手合作,为您的摄影工作流程提供完整的包。 购买 Spyder 即可获得免费的 Adobe Creative Cloud Photography计划 - 90 天试用。 Spyder 激活后将发送兑换代码。",
+            "Description": """内容简介
+                            Spyderprint 是专业人士选择管理打印输出色彩的全功能解决方案。 通过在软件中选择打印机、墨水和介质的任意组合,Spyderprint 提供了各种工具,让您突破高级喷墨打印机的极限,创造彩色和黑白相间的画廊级打印质量。 Spyderprint 让您完全控制打印机输出,并能够根据 ICC 标准创建任意数量的自定义配置文件。 只需安装软件,使用打印机打印您选择的目标,然后使用 SpyderGuide 设备帮助您完成校准和构建配置文件的简单过程。 包括 Spyderprint 分光色度计和底座,SpyderGuide, 6? USB 数据线,Spyderprint 软件 CD,快速入门指南(10 种语言),免费在线支持。
+                            From the Manufacturer
+                            SpyderPRINT lets you effectively manage color in your print output. By selecting any combination of printer, ink, and media in the software, you can control your printer output to create gallery-quality prints in color or black and white. SpyderPRINT includes software and a SpyderGuide device and is designed for professional photographers, fine art printers, production professionals, and anyone who wants accurate print-to-screen matching.
+                            SpyderPRINT
+                            AT A GLANCE:
+                            Effectively manage color in your print output
+                            Spectrocolorimeter creates custom profiles in minutes
+                            Gives you true-to-life reproduction of image files
+                            SpyderProof images provide soft-proofing tool
+                            Make adjustments to entire profile in image editor
+                            One-year warranty
+                            Spectrocolorimeter creates custom color profiles in minutes. View larger.
+                            Software creates RGB ICC profiles for consistent, accurate prints. View larger.
+                            Easily Calibrate Printer and Display
+                            With SpyderPRINT you can have full control of your printer output by creating any number of custom profiles to ICC standards*. Simply install the software, print your choice of targets with your printer, and use the SpyderGuide device to calibrate and build a profile.
+                            After calibration, images can be viewed and edited with confidence. You will see less waste in your printed output and fewer unused prints. Images can be reliably assessed and adjusted, giving you true-to-life reproduction.
+                            Custom Profiles in Minutes
+                            Working with profiling speed and accuracy, SpyderPRINT's spectrocolorimeter gives you custom profiles with EZ targets for color and black and white.
+                            The SpyderProof function gives you a series of images to review so you can evaluate each detail from a photographer's point of view and compare it with your own images. This feature serves as a soft-proofing tool for each printer profile you create.
+                            Software Includes Extensive Editing Functions
+                            The color and black-and-white tinting curves in the image editor software allow you to apply adjustments to a profile rather than to each individual image. The extended grays target adds precision gray and near gray data to profiles, enhancing the quality of tinted and black-and-white prints.
+                            Flexible target options and high-patch profiling targets allow you to produce gallery quality prints in color or black and white. Select preset profile settings to produce profiles with specific combinations of highlight and shadow tint, detail, and neutrality settings.
+                            System Requirements and Warranty Information
+                            SpyderPRINT is compatible with Windows XP (32/64), Vista (32/64), and 7 (32/64) operating systems as well as Mac OS X 10.4 or higher. To use this device, you need a powered USB port, a color monitor resolution of at least 1,024 by 768 pixels, a 16-bit video card, 128 MB RAM, and 100 MB free hard disk space.
+                            SpyderPRINT comes with a one-year hardware warranty and free online support.
+                            * SpyderPRINT builds RGB ICC profiles. Please check with the manufacturer of your laser printer or the developer of your RIP software to determine if your laser printer or RIP is compatible with RGB ICC profiles.
+                            What's in the Box
+                            SpyderPRINT spectrocolorimeter and base, SpyderGuide, 6-foot USB cable, SpyderPRINT software CD, and quick-start guide.
+                            Other Products by DataColor:
+                            Light balance reference tool.
+                            Complete color management.
+                            At-home lens calibration.
+                            Color correction for HDTV.
+                            Color color standard tool.  来自品牌
+                            A Foundation of Trust
+                            We help others achieve their goals by eliminating roadblocks and facilitating processes critical to color management. In turn, the world’s leading brands, manufacturers and creative professionals, (Audi, Hugo Boss, Walmart, Ace Hardware, and more) trust us to deliver innovative color management solutions for their needs."
+                            """,
+            "Price": "US$34400",
+            "Rating": 2.9,
+            "ReviewCount": 35,
+            "ProductURL": "https://www.amazon.com/-/zh/dp/B006UACRTG/ref=sr_1_1"
           },
           "influencer_data": [
             {
-              "id": "inf_test_01",
-              "name": "Simple Tester",
+              "influencerId": "pro_photo_print_01",
+              "influencerName": "Pixel Perfect Prints",
               "platforms": {
                 "youtube": [
                   {
-                    "content_title": "Testing the Recorder",
-                    "like_count": 10,
-                    # Add other Optional fields as None if needed
-                    # "promo_category": None,
-                    # "enhanced_tag": None,
-                    # "cover_image_url": None,
-                    # "content_url": None,
-                    # "comment_count": None,
-                    # "publish_date": None
+                    "content_title": "Mastering Print Color: Datacolor Spyder Print Deep Dive Review",
+                    "like_count": 1850,
+                    "comment_count": 150,
+                    "publish_date": "2024-03-15T10:00:00Z",
+                    "promo_category": ["Photography Gear", "Printing Supplies", "Color Management"],
+                    "enhanced_tag": ["ICC Profile", "Spectrocolorimeter", "Fine Art Printing", "Tutorial", "Review", "Datacolor", "SpyderPrint"],
+                    "cover_image_url": "https://example.com/img/spyderprint_review.jpg",
+                    "content_url": "https://youtube.com/watch?v=fake12345"
+                  },
+                  {
+                    "content_title": "My Essential Print Workflow Tools for Gallery Quality (2024)",
+                    "like_count": 2100,
+                    "comment_count": 180,
+                    "publish_date": "2024-02-20T11:30:00Z",
+                    "promo_category": ["Photography Gear", "Software", "Printing"],
+                    "enhanced_tag": ["Workflow", "Printing", "Color Accuracy", "Photoshop", "Lightroom", "Epson Printer"],
+                    "cover_image_url": "https://example.com/img/print_workflow.jpg",
+                    "content_url": "https://youtube.com/watch?v=fake67890"
+                  }
+                ],
+                "instagram": [
+                  {
+                    "content_title": "Side-by-side print comparison before and after calibration with Spyder Print. The difference is HUGE! #coloraccuracy #fineartprint #datacolor #photographytips",
+                    "like_count": 950,
+                    "comment_count": 60,
+                    "publish_date": "2024-03-18T15:00:00Z",
+                    "promo_category": ["Photography Gear"],
+                    "enhanced_tag": ["Color Management", "Printing", "Comparison", "Tips"]
+                  }
+                ]
+              }
+            },
+            {
+              "influencerId": "design_creative_02",
+              "influencerName": "Design & Flow Studio",
+              "platforms": {
+                "youtube": [
+                  {
+                    "content_title": "Setting Up Your Workspace for Perfect Print Design - Color Matters!",
+                    "like_count": 3500,
+                    "comment_count": 280,
+                    "publish_date": "2024-04-01T09:00:00Z",
+                    "promo_category": ["Graphic Design", "Creative Tools", "Monitors"],
+                    "enhanced_tag": ["Workspace Setup", "Color Management", "Print Design", "Adobe Illustrator", "Monitor Calibration"],
+                    "cover_image_url": "https://example.com/img/design_workspace.jpg", 
+                    "content_url": "https://youtube.com/watch?v=fakeabcde"
+                  },
+                  {
+                    "content_title": "Top 5 Tech Gadgets Every Designer Needs in 2024",
+                    "like_count": 5200,
+                    "comment_count": 410,
+                    "publish_date": "2024-03-10T14:00:00Z",
+                    "promo_category": ["Tech Gadgets", "Creative Tools", "Productivity"],
+                    "enhanced_tag": ["Review", "Designer Tools", "Tablet", "Monitor", "Software", "Keyboard"],
+                    "cover_image_url": "https://example.com/img/designer_gadgets.jpg",
+                    "content_url": "https://youtube.com/watch?v=fakefghij"
+                  }
+                ],
+                "tiktok": [ 
+                  {
+                    "content_title": "Quick tip: Why your screen colour doesn't match your print! #graphicdesign #printdesign #colortheory #designtips",
+                    "like_count": 15000,
+                    "comment_count": 500,
+                    "publish_date": "2024-04-05T18:00:00Z",
+                    "promo_category": ["Graphic Design"],
+                    "enhanced_tag": ["Design Education", "Tips", "Color Management"]
+                  }
+                ]
+              }
+            },{
+              "influencerId": "gen_tech_review_03",
+              "influencerName": "Tech Tomorrow",
+              "platforms": {
+                "youtube": [
+                  {
+                    "content_title": "Is the NEW MegaPixel Camera Worth It? Full Review!",
+                    "like_count": 25000,
+                    "comment_count": 1500,
+                    "publish_date": "2024-04-10T12:00:00Z",
+                    "promo_category": ["Cameras", "Tech Gadgets", "Photography"],
+                    "enhanced_tag": ["Camera Review", "Mirrorless", "4K Video", "Unboxing", "Tech Review"],
+                    "cover_image_url": "https://example.com/img/new_camera.jpg",
+                    "content_url": "https://youtube.com/watch?v=fakeklmno"
+                  },
+                  {
+                    "content_title": "Building the Ultimate Budget Gaming PC - Part 1",
+                    "like_count": 35000,
+                    "comment_count": 2800,
+                    "publish_date": "2024-03-25T16:00:00Z",
+                    "promo_category": ["PC Hardware", "Gaming"],
+                    "enhanced_tag": ["PC Build", "Gaming PC", "Budget Build", "CPU", "GPU", "Tutorial"],
+                    "cover_image_url": "https://example.com/img/gaming_pc.jpg",
+                    "content_url": "https://youtube.com/watch?v=fakepqrst"
                   }
                 ]
               }

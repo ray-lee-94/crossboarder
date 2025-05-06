@@ -44,7 +44,7 @@ class ProductInput(BaseModel):
     AmazonCategory: Optional[str] = None
     Specifications: Optional[str] # Or Dict[str, Any]
     Description: Optional[str] = None
-    Price: Optional[float] = None
+    Price: Optional[str] = None
     Rating: Optional[float] = None
     ReviewCount: Optional[int] = None
     ProductURL: Optional[str] = None # Useful for context
@@ -54,8 +54,8 @@ class ProductInput(BaseModel):
 class InfluencerPlatformContentInput(BaseModel):
      # Matches PlatformContentData structure
     content_title: Optional[str] = None
-    promo_category: Optional[str] = None
-    enhanced_tag: Optional[str] = None
+    promo_category: Optional[List[str]] = None
+    enhanced_tag: Optional[List[str]] = None
     cover_image_url: Optional[str] = None
     content_url: Optional[str] = None
     like_count: Optional[int] = None
@@ -185,8 +185,8 @@ async def run_marketing_workflow(request: MarketingRequest) -> ResponseModel:
     print("Received marketing workflow request.")
     # 1. Prepare Initial State
     initial_state:  MarketingWorkFlowState= {
-        "product_info": request.product_info.dict(), # Convert Pydantic model to dict
-        "influencer_data": [inf.dict() for inf in request.influencer_data], # Convert list of Pydantic models
+        "product_info": request.product_info.model_dump(), # Convert Pydantic model to dict
+        "influencer_data": [inf.model_dump() for inf in request.influencer_data], # Convert list of Pydantic models
         "platform_analysis": {},
         "influencer_profiles": {},
         "product_tags": None,
@@ -196,7 +196,6 @@ async def run_marketing_workflow(request: MarketingRequest) -> ResponseModel:
         "error_messages": [],
         "match_threshold": request.match_threshold
     }
-
     # 2. Invoke the Graph Asynchronously
     try:
         print("Invoking marketing graph...")
