@@ -64,8 +64,8 @@ class InfluencerPlatformContentInput(BaseModel):
 
 
 class InfluencerInput(BaseModel):
-    id: str # Unique identifier
-    name: str
+    influencerId: str # Unique identifier
+    influencerName: str
     # Structure for platforms and their content
     platforms: Dict[str, List[InfluencerPlatformContentInput]] = {} # e.g., {"youtube": [content1, content2]}
     # Add other known influencer data if needed (e.g., overall follower count, main language)
@@ -198,7 +198,6 @@ async def run_marketing_workflow(request: MarketingRequest) -> ResponseModel:
     }
     # 2. Invoke the Graph Asynchronously
     try:
-        print("Invoking marketing graph...")
         final_state = await workflow_app.ainvoke(initial_state, {"recursion_limit": 30}) # Add recursion limit
         print("Marketing graph invocation finished.")
 

@@ -83,6 +83,7 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
 
     social_media_analyst_prompt_template = ChatPromptTemplate.from_template(social_media_analyst_Prompt)
     chain = social_media_analyst_prompt_template | llm | JsonOutputParser()
+    print(f" Analyzing platforms for {len(influencer_data)} influencers...")
     for influencer in influencer_data:
         influencer_id = influencer["influencerId"]
         influencer_name = influencer["influencerName"]
@@ -104,7 +105,9 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
                     "platform": platform_name,
                     "content_list_json": content_list_json_str # Pass the JSON string
                 }
+                print("debug  before invoke",parsed_result)
                 parsed_result=chain.invoke(input_dict)
+                print("debug ",parsed_result)
 
                 if parsed_result and isinstance(parsed_result, dict): # Basic check
                     print(f"      Analysis successful for {platform_name}.")
@@ -117,6 +120,7 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
                 errors.append(f"Platform analysis error for {influencer_name} - {platform_name}: {e}")
 
         all_platform_analysis[influencer_id] = influencer_platform_results
+    print("Social media analysis complete.",all_platform_analysis)
     return {"platform_analysis": all_platform_analysis, "error_messages": state.error_messages + errors}
 
 
@@ -132,7 +136,7 @@ def generate_influencer_profiles_node(state: MarketingWorkFlowState):
     # Note: Ideally use JsonOutputParser here
     # analysis_chain = analysis_prompt_template | llm | safe_json_parser
 
-    influencer_map = {inf['id']: inf['name'] for inf in influencer_data}
+    influencer_map = {inf['influencerId']: inf['influencerName'] for inf in influencer_data}
 
     for influencer_id, platform_details_map in platform_analysis.items():
         influencer_name = influencer_map.get(influencer_id, f"Unknown ID: {influencer_id}")

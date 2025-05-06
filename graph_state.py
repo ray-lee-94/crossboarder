@@ -36,6 +36,7 @@ class PlatformAnalysisResult(BaseModel):
     promotionAbility: str
     brandRepetitionRate: str
     contentScene: List[str]
+    platform: str
 
 class InfluencerProfile(BaseModel):
     # Matches the output structure of analysisPromt
