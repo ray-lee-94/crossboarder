@@ -105,9 +105,7 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
                     "platform": platform_name,
                     "content_list_json": content_list_json_str # Pass the JSON string
                 }
-                print("debug  before invoke",parsed_result)
                 parsed_result=chain.invoke(input_dict)
-                print("debug ",parsed_result)
 
                 if parsed_result and isinstance(parsed_result, dict): # Basic check
                     print(f"      Analysis successful for {platform_name}.")
@@ -149,19 +147,18 @@ def generate_influencer_profiles_node(state: MarketingWorkFlowState):
 
         # Prepare input for analysisPromt - expects a LIST of platform details
         platform_details_list = []
-        for platform, details in platform_details_map.items():
-            platform_details_list.append(details)
+        for _, details in platform_details_map.items():
+            platform_details_list.append(details.model_dump())
 
         # Format the prompt - replace placeholders
         analysis_prompt_template = ChatPromptTemplate.from_template(influencer_analysis_Prompt)
         analysis_chain = analysis_prompt_template | llm | JsonOutputParser()
 
         try:
-            print(platform_details_list)
             platform_details_json_str = json.dumps(platform_details_list, ensure_ascii=False, indent=2)
             input_dict = {
-                "influencer_id": influencer_id,
-                "influencer_name": influencer_name,
+                "influencerId": influencer_id,
+                "influencerName": influencer_name,
                 "platform_details_list_json": platform_details_json_str
                 }
             parsed_result= analysis_chain.invoke(input_dict)
