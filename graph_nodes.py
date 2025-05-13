@@ -25,29 +25,9 @@ llm = AzureChatOpenAI(
     deployment_name=deployment_name
 )
 
-str_parser = StrOutputParser()
-
 
 # Use JsonOutputParser for more robustness where JSON is expected
 # json_parser = JsonOutputParser()
-# For even more robustness with specific models, consider Function Calling parsers
-
-def safe_json_parser(json_string: str, default=None)-> dict:
-    """Safely parse a JSON string, potentially stripping markdown."""
-    try:
-        if json_string.startswith("```json"):
-            json_string = json_string[7:]
-        if json_string.endswith("```"):
-            json_string = json_string[:-3]
-        json_string= json_string.strip()
-        return json.loads(json_string)
-    
-    except json.JSONDecodeError:
-        print(f"Error parsing JSON: {json_string}")
-        return default
-    except Exception as e:
-        print(f"Waring: An unexpected error occurred: {e}")
-        return default
     
 # %% Node functions
 
@@ -62,7 +42,7 @@ def analyze_product_node(state: MarketingWorkFlowState):
     try:
         parsed_result= chain.invoke({"product_data_json": json.dumps(product_info,ensure_ascii=False)})
 
-        print(f"Product analysis result: {parsed_result}")
+        # print(f"Product analysis result: {parsed_result}")
         if parsed_result and isinstance(parsed_result, dict) and "FeatureTags" in parsed_result and \
             "AudienceTags" in parsed_result and "UsageScenarioTags" in parsed_result:
             print("Product analysis successful.")
@@ -118,7 +98,7 @@ def analyze_influencers_platforms_node(state: MarketingWorkFlowState):
                 errors.append(f"Platform analysis error for {influencer_name} - {platform_name}: {e}")
 
         all_platform_analysis[influencer_id] = influencer_platform_results
-    print("Social media analysis complete.",all_platform_analysis)
+    print("Social media analysis complete.") #,all_platform_analysis)
     return {"platform_analysis": all_platform_analysis, "error_messages": state.error_messages + errors}
 
 
@@ -132,7 +112,6 @@ def generate_influencer_profiles_node(state: MarketingWorkFlowState):
 
     analysis_prompt_template = ChatPromptTemplate.from_template(influencer_analysis_Prompt)
     # Note: Ideally use JsonOutputParser here
-    # analysis_chain = analysis_prompt_template | llm | safe_json_parser
 
     influencer_map = {inf['influencerId']: inf['influencerName'] for inf in influencer_data}
 
@@ -194,15 +173,16 @@ def match_influencers_node(state: MarketingWorkFlowState):
 
     matcher_prompt_template = ChatPromptTemplate.from_template(influencer_match_Prompt)
     # Note: Ideally use JsonOutputParser here, expecting a LIST of results
-    matcher_chain = matcher_prompt_template | llm | safe_json_parser
+    matcher_chain = matcher_prompt_template | llm | JsonOutputParser()
 
     # Prepare the list of influencer profiles for the prompt
     influencers_to_match_list = []
-    influencer_map = {inf['id']: inf['name'] for inf in influencer_data}
+    influencer_map = {inf['influencerId']: inf['influencerName'] for inf in influencer_data}
     for inf_id, profile in influencer_profiles.items():
-        profile_with_id = profile.copy()
-        profile_with_id['达人ID'] = inf_id
-        profile_with_id['达人名称'] = influencer_map.get(inf_id, f"Unknown ID: {inf_id}")
+        profile_with_id = profile.model_dump()
+        profile_with_id['influencerId'] = inf_id
+        profile_with_id['influencerName'] = influencer_map.get(inf_id, f"Unknown ID: {inf_id}")
+
         # Add other fields if your 'matcherPromt' expects them (e.g., follower scale)
         influencers_to_match_list.append(profile_with_id)
 
@@ -228,20 +208,20 @@ def match_influencers_node(state: MarketingWorkFlowState):
              # Optional: Validate structure of each item in the list
             valid_results = []
             for item in parsed_result:
-                if isinstance(item, dict) and "influencer_id" in item and "match_score" in item and "match_rationale" in item:
+                if isinstance(item, dict) and "influencerId" in item and "match_score" in item and "match_rationale" in item:
                     valid_results.append(item)
                 else:
                     print(f"  Warning: Invalid match result format found: {item}")
                     errors.append("Matcher returned an item with invalid format.")
-            return {"match_results": valid_results, "error_messages": state["error_messages"] + errors}
+            return {"match_results": valid_results, "error_messages": state.error_messages + errors}
         else:
             print("  Matching failed or returned invalid format (expected a list).")
             errors.append("Matcher did not return a valid list.")
-            return {"match_results": [], "error_messages": state["error_messages"] + errors}
+            return {"match_results": [], "error_messages": state.error_messages + errors}
     except Exception as e:
         print(f"  Error during matching: {e}")
         errors.append(f"Matcher error: {e}")
-        return {"match_results": [], "error_messages": state["error_messages"] + errors}
+        return {"match_results": [], "error_messages": state.error_messages + errors}
 
 def filter_matches_node(state: MarketingWorkFlowState):
     """Filters match results based on the threshold."""
@@ -257,8 +237,9 @@ def filter_matches_node(state: MarketingWorkFlowState):
     for result in match_results:
         try:
             # Extract number from score string like "88%" -> 88.0
-            score_str = result.get("match_score", "0%").strip('% ')
-            score = float(score_str)
+            score_str = result.match_score
+            score = float(score_str.replace("%", ""))
+            print(score_str,score,threshold)
             if score >= threshold:
                 selected.append(result)
         except (ValueError, TypeError):
@@ -284,7 +265,6 @@ def generate_emails_node(state: MarketingWorkFlowState):
 
     # email_prompt_template = ChatPromptTemplate.from_template(collab_email_Prompt)
     # Note: Ideally use JsonOutputParser here
-    # email_chain = email_prompt_template | llm | safe_json_parser
 
     # Combine product info and tags
     product_input_data = product_info.copy()
@@ -292,8 +272,8 @@ def generate_emails_node(state: MarketingWorkFlowState):
         product_input_data.update(product_tags)
 
     for influencer_match in selected_influencers:
-        influencer_id = influencer_match['influencer_id']
-        influencer_name = influencer_match['influencer_name']
+        influencer_id = influencer_match.influencerId
+        influencer_name = influencer_match.influencerName
         print(f"  Generating email for: {influencer_name} ({influencer_id})")
 
         # Get the full profile for this influencer
@@ -306,20 +286,20 @@ def generate_emails_node(state: MarketingWorkFlowState):
         # Prepare input for EmailPromt
         # Need to fill placeholders like {达人ID}, {达人名称} etc.
         # Assuming EmailPromt needs product_info and the single influencer's profile
-        profile_with_id = profile.copy()
-        profile_with_id['达人ID'] = influencer_id
-        profile_with_id['达人名称'] = influencer_name
+        profile_with_id = profile.model_dump()
+        profile_with_id['influencerId'] = influencer_id
+        profile_with_id['influencerName'] = influencer_name
         # Add other fields like 主语言, 地区 if available and needed by prompt
 
         # Format the prompt (replace placeholders if any - though EmailPromt looks like it takes dicts directly)
         email_prompt_template_filled = ChatPromptTemplate.from_template(collab_email_Prompt) # Re-create if needed
-        email_chain_filled = email_prompt_template_filled | llm | safe_json_parser
+        email_chain_filled = email_prompt_template_filled | llm | JsonOutputParser()
 
         try:
             # Input expects 'product_info' and '达人账号总表信息'
             input_dict = {
                 "product_info": json.dumps(product_input_data, ensure_ascii=False, indent=2),
-                "达人账号总表信息": json.dumps(profile_with_id, ensure_ascii=False, indent=2)
+                "influencer_profile": json.dumps(profile_with_id, ensure_ascii=False, indent=2)
             }
             parsed_result= email_chain_filled.invoke(input_dict)
 
@@ -327,8 +307,8 @@ def generate_emails_node(state: MarketingWorkFlowState):
                "email_subject" in parsed_result and "email_body" in parsed_result:
                 print(f"    Email generated successfully for {influencer_name}.")
                  # Add back IDs for tracking
-                parsed_result['influencer_id'] = influencer_id
-                parsed_result['influencer_name'] = influencer_name
+                parsed_result['influencerId'] = influencer_id
+                parsed_result['influencerName'] = influencer_name
                 generated_emails.append(parsed_result)
             else:
                 print(f"    Email generation failed or invalid format for {influencer_name}.")
@@ -337,7 +317,7 @@ def generate_emails_node(state: MarketingWorkFlowState):
             print(f"    Error generating email for {influencer_name}: {e}")
             errors.append(f"Email generation error for {influencer_name}: {e}")
 
-    return {"generated_emails": generated_emails, "error_messages": state["error_messages"] + errors}
+    return {"generated_emails": generated_emails, "error_messages": state.error_messages + errors}
 
 # --- Conditional Edge Logic ---
 
@@ -372,6 +352,8 @@ workflow.add_edge("generate_profiles","match_influences")
 workflow.add_edge("match_influences","filter_matches")
 
 workflow.add_conditional_edges("filter_matches", should_generate_emails,{"generate_emails":"generate_emails",END:END})
+
+
 
 workflow.add_edge("generate_emails",END)
 

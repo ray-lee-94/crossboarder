@@ -57,15 +57,15 @@ class ProductTags(BaseModel):
 
 class MatchResult(BaseModel):
      # Matches the output structure of matcherPromt
-    influencer_id: str
-    influencer_name: str
+    influencerId: str
+    influencerName: str
     match_score: str # Keeping as string ('88%') as per prompt output example
     match_rationale: str
 
 class GeneratedEmail(BaseModel):
     # Matches the output structure of EmailPromt
-    influencer_id: str
-    influencer_name: str
+    influencerId: str
+    influencerName: str
     email_subject: str
     email_body: str
 

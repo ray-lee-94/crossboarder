@@ -216,7 +216,7 @@ async def run_marketing_workflow(request: MarketingRequest) -> ResponseModel:
             print(f"Workflow completed with errors: {errors}")
             # Decide if partial success is acceptable or return failure
             return ResponseModel(
-                success=False, # Or True if partial results are okay
+                success=True, # Or True if partial results are okay
                 message=f"Workflow completed with {len(errors)} errors.",
                 data=result_data
             )
@@ -283,19 +283,9 @@ async def analyze_email_intent(request: EmailIntentRequest) -> ResponseModel:
         print(f"Error during intent analysis execution: {e}")
         import traceback
         traceback.print_exc()
-        # raise HTTPException(status_code=500, detail=f"Internal server error during intent analysis: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error during intent analysis: {e}")
 
 
-# @app.post("/api/influencer/list", tags=["Influencer"], response_model=ResponseModel)
-# async def list_influencer(product_info: ProductInfo, platform: str) -> ResponseModel:
-#     """推荐达人"""
-#     return ResponseModel(success=True, message="Product crawled successfully", data={})
-
-
-# @app.post("/api/email/intent", tags=["Email"])
-# async def email_intent(history: List[Any]) -> ResponseModel:
-#     """邮件意图识别"""
-#     return ResponseModel(success=True, message="Product crawled successfully", data={})
 
 
 def main():

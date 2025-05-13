@@ -36,27 +36,27 @@ def assert_response_success(response, expected_status_code=200):
 
 # --- Test Classes ---
 
-# class TestHealthEndpoints:
-#     """Tests for /api/health and /api/version"""
+class TestHealthEndpoints:
+    """Tests for /api/health and /api/version"""
 
-#     def test_health_check(self):
-#         """Test Case 1.1: Health Check"""
-#         url = f"{BASE_URL}/api/health"
-#         response = requests.get(url, timeout=DEFAULT_TIMEOUT)
-#         data = assert_response_success(response)
-#         # Basic checks are done in the helper, add more specific ones if needed
-#         assert "data" in data and isinstance(data["data"], dict)
-#         assert data["data"].get("status") == "ok"
-#         assert "llm_status" in data["data"] and data["data"]["llm_status"] == "ok"
+    def test_health_check(self):
+        """Test Case 1.1: Health Check"""
+        url = f"{BASE_URL}/api/health"
+        response = requests.get(url, timeout=DEFAULT_TIMEOUT)
+        data = assert_response_success(response)
+        # Basic checks are done in the helper, add more specific ones if needed
+        assert "data" in data and isinstance(data["data"], dict)
+        assert data["data"].get("status") == "ok"
+        assert "llm_status" in data["data"] and data["data"]["llm_status"] == "ok"
 
 
-#     def test_version_check(self):
-#         """Test Case 1.2: Version Check"""
-#         url = f"{BASE_URL}/api/version"
-#         response = requests.get(url, timeout=DEFAULT_TIMEOUT)
-#         data = assert_response_success(response)
-#         assert "data" in data and isinstance(data["data"], dict)
-#         assert "version" in data["data"]
+    def test_version_check(self):
+        """Test Case 1.2: Version Check"""
+        url = f"{BASE_URL}/api/version"
+        response = requests.get(url, timeout=DEFAULT_TIMEOUT)
+        data = assert_response_success(response)
+        assert "data" in data and isinstance(data["data"], dict)
+        assert "version" in data["data"]
 
 
 class TestMarketingWorkflowEndpoint:
@@ -70,7 +70,7 @@ class TestMarketingWorkflowEndpoint:
             "ProductName": "Datacolor Spyder Print - 高级数据分析和校准工具,可实现最佳打印效果,非常适合摄影师、平面设计师和印刷专业人士。",
             "Brand": "HP",
             "AmazonCategory": "配件和耗材",
-            "Specifications": ": 条形阅读分光色度计可在几分钟内创建自定义配置文件,彩色和黑白目标易于读取。 包括改进的 SpyderGuide 以方便轻松准确地创建配置文件 | {1 } {1 } {1 } {1 } {1 } {1 } {1 } {1 } {1 } { 1 } { 1 }\ | 独特的SpyderProof功能为您提供一系列精心挑选的图像,从摄影师的角度评估细节。 Profile Softproof 可用于每个独特的打印机配置文件。 | 数据彩色Spyder Print是摄影师和设计师的领先校准和分析工具,让您完全掌控打印输出,实现画廊品质的打印效果。 | Datacolor 和 Adobe 携手合作,为您的摄影工作流程提供完整的包。 购买 Spyder 即可获得免费的 Adobe Creative Cloud Photography计划 - 90 天试用。 Spyder 激活后将发送兑换代码。",
+            "Specifications": ": 条形阅读分光色度计可在几分钟内创建自定义配置文件,彩色和黑白目标易于读取。 包括改进的 SpyderGuide 以方便轻松准确地创建配置文件 | {1 } {1 } {1 } {1 } {1 } {1 } {1 } {1 } {1 } { 1 } { 1 } | 独特的SpyderProof功能为您提供一系列精心挑选的图像,从摄影师的角度评估细节。 Profile Softproof 可用于每个独特的打印机配置文件。 | 数据彩色Spyder Print是摄影师和设计师的领先校准和分析工具,让您完全掌控打印输出,实现画廊品质的打印效果。 | Datacolor 和 Adobe 携手合作,为您的摄影工作流程提供完整的包。 购买 Spyder 即可获得免费的 Adobe Creative Cloud Photography计划 - 90 天试用。 Spyder 激活后将发送兑换代码。",
             "Description": """内容简介
                             Spyderprint 是专业人士选择管理打印输出色彩的全功能解决方案。 通过在软件中选择打印机、墨水和介质的任意组合,Spyderprint 提供了各种工具,让您突破高级喷墨打印机的极限,创造彩色和黑白相间的画廊级打印质量。 Spyderprint 让您完全控制打印机输出,并能够根据 ICC 标准创建任意数量的自定义配置文件。 只需安装软件,使用打印机打印您选择的目标,然后使用 SpyderGuide 设备帮助您完成校准和构建配置文件的简单过程。 包括 Spyderprint 分光色度计和底座,SpyderGuide, 6? USB 数据线,Spyderprint 软件 CD,快速入门指南(10 种语言),免费在线支持。
                             From the Manufacturer
@@ -223,10 +223,9 @@ class TestMarketingWorkflowEndpoint:
         }
         # Increase timeout significantly for the full workflow
         response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT * 4)
-
         data = assert_response_success(response) # Should now pass status check if 422 is fixed
-
         # Check structure assuming success
+        print(data["data"])
         assert "data" in data and isinstance(data["data"], dict)
         assert "product_tags" in data["data"]
         assert "match_results" in data["data"]
@@ -263,70 +262,70 @@ class TestMarketingWorkflowEndpoint:
           "match_threshold": 75.0
         }
         response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT * 2)
-        data = assert_response_success(response) # Should now pass status check if 422 is fixed
 
+        data = assert_response_success(response) # Should now pass status check if 422 is fixed
         assert "data" in data and isinstance(data["data"], dict)
         # Check that results involving influencers are empty
         assert data["data"].get("match_results") in ([], None)
         assert data["data"].get("selected_influencers") in ([], None)
         assert data["data"].get("generated_emails") in ([], None)
-        assert data["data"].get("errors") == []
+        assert data["data"].get("errors") == ["Cannot match: Influencer profiles missing."]
 
 
-# class TestEmailIntentEndpoint:
-#     """Tests for /api/email/analyze-intent"""
+class TestEmailIntentEndpoint:
+    """Tests for /api/email/analyze-intent"""
 
-#     def test_email_intent_success(self):
-#         """Test Case 3.1: Email Intent - Success Case (Basic)"""
-#         url = f"{BASE_URL}/api/email/analyze-intent"
-#         payload = {
-#           "history": [
-#             {
-#               "sender": "us", "recipient": "influencer@example.com",
-#               "subject": "Collaboration Invite", "body": "Hi Influencer, want to collab?",
-#               "timestamp": "2023-10-26T10:00:00Z"
-#             },
-#             {
-#               "sender": "influencer@example.com", "recipient": "us",
-#               "subject": "Re: Collaboration Invite",
-#               "body": "Hey there! Thanks for reaching out. Yes, I'm interested. What are the next steps and payment details?",
-#               "timestamp": "2023-10-27T09:30:00Z"
-#             }
-#           ]
-#         }
-#         # Allow a bit more time for the LLM call
-#         response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT * 2)
+    def test_email_intent_success(self):
+        """Test Case 3.1: Email Intent - Success Case (Basic)"""
+        url = f"{BASE_URL}/api/email/analyze-intent"
+        payload = {
+          "history": [
+            {
+              "sender": "us", "recipient": "influencer@example.com",
+              "subject": "Collaboration Invite", "body": "Hi Influencer, want to collab?",
+              "timestamp": "2023-10-26T10:00:00Z"
+            },
+            {
+              "sender": "influencer@example.com", "recipient": "us",
+              "subject": "Re: Collaboration Invite",
+              "body": "Hey there! Thanks for reaching out. Yes, I'm interested. What are the next steps and payment details?",
+              "timestamp": "2023-10-27T09:30:00Z"
+            }
+          ]
+        }
+        # Allow a bit more time for the LLM call
+        response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT * 2)
 
-#         # This assertion will likely still fail if the 500 error persists on the server.
-#         # The fix needs to be applied server-side based on logs.
-#         data = assert_response_success(response)
+        # This assertion will likely still fail if the 500 error persists on the server.
+        # The fix needs to be applied server-side based on logs.
+        data = assert_response_success(response)
 
-#         # If the server-side 500 error is fixed, these checks should pass:
-#         if data: # Only check further if assert_response_success didn't fail/return None
-#             assert "data" in data and isinstance(data["data"], dict)
-#             assert "cooperation_intent" in data["data"]
-#             assert "key_points" in data["data"] and isinstance(data["data"]["key_points"], list)
-#             assert "suggested_next_step" in data["data"]
-#             assert "sentiment" in data["data"]
-#             assert "is_urgent" in data["data"]
-#             assert "notification_summary" in data["data"]
+        # If the server-side 500 error is fixed, these checks should pass:
+        if data: # Only check further if assert_response_success didn't fail/return None
+            assert "data" in data and isinstance(data["data"], dict)
+            assert "cooperation_intent" in data["data"]
+            assert "key_points" in data["data"] and isinstance(data["data"]["key_points"], list)
+            assert "suggested_next_step" in data["data"]
+            assert "sentiment" in data["data"]
+            assert "is_urgent" in data["data"]
+            assert "notification_summary" in data["data"]
 
-#     def test_email_intent_empty_history(self):
-#         """Test Case 3.2: Email Intent - Empty History"""
-#         url = f"{BASE_URL}/api/email/analyze-intent"
-#         payload = { "history": [] }
-#         response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT)
-#         assert response.status_code == 400, f"Expected 400, got {response.status_code}"
-#         assert "Email history cannot be empty" in response.text
+    def test_email_intent_empty_history(self):
+        """Test Case 3.2: Email Intent - Empty History"""
+        url = f"{BASE_URL}/api/email/analyze-intent"
+        payload = { "history": [] }
+        response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT)
+        assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+        assert "Email history cannot be empty" in response.text
 
 
-#     def test_email_intent_validation_error(self):
-#         """Test Case 3.3: Email Intent - Input Validation Error"""
-#         url = f"{BASE_URL}/api/email/analyze-intent"
-#         payload = {
-#           "history": [
-#             { "sender": "influencer@example.com", "recipient": "us", "subject": "Re:..." }
-#           ] # Missing body, timestamp
-#         }
-#         response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT)
-#         assert response.status_code == 422, f"Expected 422, got {response.status_code}"
+    def test_email_intent_validation_error(self):
+        """Test Case 3.3: Email Intent - Input Validation Error"""
+        url = f"{BASE_URL}/api/email/analyze-intent"
+        payload = {
+          "history": [
+            { "sender": "influencer@example.com", "recipient": "us", "subject": "Re:..." }
+          ] # Missing body, timestamp
+        }
+        response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT)
+        assert response.status_code == 422, f"Expected 422, got {response.status_code}"

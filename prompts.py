@@ -92,18 +92,18 @@ influencer_analysis_Prompt="""
 
 ```json
 {{
-  "核心内容方向": [
+  "coreContentDirection": [
     "结合所有平台的 `vertical_depth_platform`, `content_format_platform` 等信息，总结该达人最核心的几个内容领域 (列表，不超过5个)"
   ],
-  "综合人设/风格": "基于各平台的 `content_tone_platform`, `video_style_platform`, `content_format_platform` 等，概括该达人跨平台的整体形象和风格特点",
-  "主要受众画像": "整合各平台的 `audience_gender_platform`, `audience_age_platform`, `audience_region_platform`, `language_platform` 信息，描述最核心的受众群体特征",
-  "商业化程度评估": "根据各平台的 `promotion_capability_platform`, `brand_repeat_rate_platform` 信息，评估达人整体的商业推广参与程度 (例如：低度商业化, 中度商业化, 高度商业化, 深度商业绑定)",
-  "跨平台内容一致性": "对比各平台的 `vertical_depth_platform`, `content_format_platform`, `content_tone_platform`，评估内容在不同平台是相似还是差异化 (例如：高度一致, 基本一致略有侧重, 平台差异化明显)",
-  "潜在合作品牌类型": [
+  "overallPersonaAndStyle": "基于各平台的 `content_tone_platform`, `video_style_platform`, `content_format_platform` 等，概括该达人跨平台的整体形象和风格特点",
+  "mainAudience": "整合各平台的 `audience_gender_platform`, `audience_age_platform`, `audience_region_platform`, `language_platform` 信息，描述最核心的受众群体特征",
+  "commercialDegree": "根据各平台的 `promotion_capability_platform`, `brand_repeat_rate_platform` 信息，评估达人整体的商业推广参与程度 (例如：低度商业化, 中度商业化, 高度商业化, 深度商业绑定)",
+  "crossPlatformConsist": "对比各平台的 `vertical_depth_platform`, `content_format_platform`, `content_tone_platform`，评估内容在不同平台是相似还是差异化 (例如：高度一致, 基本一致略有侧重, 平台差异化明显)",
+  "potentialBrandType": [
     "基于总结出的 `核心内容方向`, `综合人设/风格`, `主要受众画像`，推测最适合合作的品牌品类 (列表)"
   ],
-  "达人总体评价": "综合评估各平台的 `follower_count`, `interaction_rate`, `is_active_platform`, 内容质量指标 (`content_tone_platform`, `vertical_depth_platform` 等)，对达人的跨平台影响力和内容价值给出一个整体性评价",
-  "带货能力评级": "基于 `商业化程度评估`，结合各平台影响力指标 (`follower_count`, `interaction_rate`) 和 `核心内容方向` 的带货属性，评估达人整体的带货潜力等级 (例如：高, 中, 低, 无法判断)"
+  "influencerEval": "综合评估各平台的 `follower_count`, `interaction_rate`, `is_active_platform`, 内容质量指标 (`content_tone_platform`, `vertical_depth_platform` 等)，对达人的跨平台影响力和内容价值给出一个整体性评价",
+  "goodsCarryRating": "基于 `商业化程度评估`，结合各平台影响力指标 (`follower_count`, `interaction_rate`) 和 `核心内容方向` 的带货属性，评估达人整体的带货潜力等级 (例如：高, 中, 低, 无法判断)"
 }}
 # 分析指南:
 严格依据输入: 所有的结论都必须能从提供的 平台账号详情数据列表 中的字段推导出来。
@@ -208,7 +208,7 @@ influencer_match_Prompt="""
 你是一位专业的网红营销匹配专家和品牌策略师，擅长理解商品特性与不同达人风格、受众的契合度，为商品寻找最合适的推广人选。
 
 # 任务:
-根据提供的【单一商品信息】和【多个达人账号总表信息列表】，为该商品评估**每一个达人**的匹配度。你需要输出每个达人与该商品的**匹配度评级 (高/中/低)** 以及详细的**推荐理由**，说明匹配或不匹配的关键因素。
+根据提供的【单一商品信息】{product_info} 和【多个达人账号总表信息列表】{influencers_to_match}，为该商品评估**每一个达人**的匹配度。你需要输出每个达人与该商品的**匹配度评级 (高/中/低)** 以及详细的**推荐理由**，说明匹配或不匹配的关键因素。
 
 # 输入数据说明:
 
@@ -231,14 +231,16 @@ influencer_match_Prompt="""
 *   一个包含**多个达人**关键特征和评估结果的JSON列表。
 *   每个对象代表一个达人。
 *   关键字段**建议包含**:
-    *   `达人ID` / `达人名称` (influencer_id / influencer_name)
-    *   `核心内容方向` (core_content_areas): [列表] 主要内容领域
-    *   `综合人设/风格` (persona_style): 整体形象和风格描述
-    *   `主要受众画像` (audience_profile): 核心受众特征描述 (年龄、性别、地区、兴趣等)
-    *   `商业化程度评估` (commercialization_level): (可选) 达人商业化程度
-    *   `带货能力评级` (monetization_rating): (可选) 达人带货潜力评级
-    *   `粉丝量级评估` (follower_scale_tier): (可选, 如: 腰部/头部/超头部) 用于判断影响力
-    *   `主要平台互动率评估` (engagement_tier): (可选, 如: 高/中/低)
+    *   `influencerId`: 达人ID
+    *   `influencerName`: 达人名称
+    *   `coreContentDirection`: [列表] 主要内容领域
+    *   `overallPersonaAndStyle`: 综合人设/风格,整体形象和风格描述
+    *   `mainAudience`: 主要受众画像,核心受众特征描述 (年龄、性别、地区、兴趣等)
+    *   `commercialDegree`: (可选) 达人商业化程度
+    *   `crossPlatformConsist`: (可选) 跨平台内容一致性，（如 "高度一致","平台差异化明显")
+    *   `potentialBrandType` : (可选) 潜在合作品牌类型，基于内容、风格和受众，推测适合合作的品牌品类列表 （如 ["数码产品", "快时尚", "生活用品"]
+    *   `influencerEval`: (可选),达人总体评价，"综合评估达人在该平台的内容质量、互动表现、独特性和发展潜力 （例如：内容质量高，互动积极，风格独特，潜力巨大 / 内容同质化，互动一般，有待提升 / 更新频率低，影响力有限 等"
+    *   `goodsCarryRating`: (可选) 带货评级，"根据达人内容和风格，评估其推广该商品的可能性及效果 （例如：高匹配度，适合推广 / 中度匹配度，需谨慎选择 / 低匹配度，不适合推广 等"
 
 **# 输出要求:**
 请针对【待匹配达人列表】中的**每一个达人**，输出一个匹配结果对象。最终返回一个包含所有达人匹配结果的JSON列表。每个匹配结果对象应包含以下字段：
@@ -246,14 +248,14 @@ influencer_match_Prompt="""
 ```json
 [
   {{
-    "influencer_id": "[达人ID]",
-    "influencer_name": "[达人名称]",
+    "influencerId": "[达人ID]",
+    "influencerName": "[达人名称]",
     "match_score": "[88%]", // 匹配度评级
     "match_rationale": "[详细的推荐理由]" // 解释评级的原因
   }},
   {{
-    "influencer_id": "[另一个达人ID]",
-    "influencer_name": "[另一个达人名称]",
+    "influencerId": "[另一个达人ID]",
+    "influencerName": "[另一个达人名称]",
     "match_score": "[30%]",
     "match_rationale": "[该达人的评分理由]"
   }}
@@ -283,7 +285,7 @@ collab_email_Prompt="""
 你是一位经验丰富的网红营销专员，擅长撰写个性化、有吸引力的合作邀请邮件。
 
 # 任务:
-根据提供的【单一商品信息】和【单个达人账号总表信息】，为这位达人撰写一封专属的、个性化的建联邮件，旨在邀请其对该商品进行推广合作。邮件需要体现出对达人内容和风格的了解，并清晰阐述商品与达人的契合点，请根据达人所在地区和主要语言编写建联邮件。
+根据提供的【单一商品信息】{product_info}和【单个达人账号总表信息】{influencer_profile}，为这位达人撰写一封专属的、个性化的建联邮件，旨在邀请其对该商品进行推广合作。邮件需要体现出对达人内容和风格的了解，并清晰阐述商品与达人的契合点，请根据达人所在地区和主要语言编写建联邮件。
 
 # 输入数据说明:
 
@@ -305,21 +307,20 @@ collab_email_Prompt="""
 **第二部分: 【达人账号总表信息】**
 *   一个包含**目标达人**关键特征和评估结果的JSON对象。
 *   关键字段**建议包含**:
-    *   `达人ID` / `达人名称` (influencer_id / influencer_name) - **必需**
-    *   `核心内容方向` (core_content_areas): [列表] 主要内容领域 - **必需**
-    *   `综合人设/风格` (persona_style): 整体形象和风格描述 - **必需**
-    *   `主要受众画像` (audience_profile): 核心受众特征描述 - **必需**
-    *   `主要平台` (primary_platform): 达人主要活跃平台
-    *   `主语言
-    *   `地区
+    *   `influencerId`: 达人ID
+    *   `influencerName`: 达人名称
+    *   `coreContentDirection`:  [列表] 主要内容领域 - **必需**
+    *   `overallPersonaAndStyle`: 整体形象和风格描述 - **必需**
+    *   `mainAudience`: 核心受众特征描述 - **必需**
+
 
 **# 输出要求:**
 请生成一个包含以下字段的JSON对象：
 
 ```json
 {{
-  "influencer_id": "[达人ID]",
-  "influencer_name": "[达人名称]",
+  "influencerId": "[达人ID]",
+  "influencerName": "[达人名称]",
   "email_subject": "[邮件主题 - 需要吸引人且相关]",
   "email_body": "[个性化的邮件正文文本]"
 }}
