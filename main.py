@@ -13,9 +13,7 @@ app = FastAPI(
     title="Crossborder LLM API",
     description="API服务用于跨境大语言模型",
     version="0.1.0",
-    docs_url=None,  # 禁用默认的docs地址
-    redoc_url=None,  # 禁用默认的redoc地址
-    openapi_url="/api/openapi.json",  # 自定义OpenAPI JSON地址
+   
 )
 
 # 配置CORS
@@ -92,50 +90,50 @@ class EmailIntentRequest(BaseModel):
 
 
 # 自定义OpenAPI文档路由
-@app.get("/api/docs", include_in_schema=False)
-async def get_documentation():
-    return get_swagger_ui_html(
-        openapi_url="/api/openapi.json",
-        title="Crossborder LLM API - Documentation",
-        swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-bundle.js",
-        swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui.css",
-    )
+# @app.get("/api/docs", include_in_schema=False)
+# async def get_documentation():
+#     return get_swagger_ui_html(
+#         openapi_url="/api/openapi.json",
+#         title="Crossborder LLM API - Documentation",
+#         swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-bundle.js",
+#         swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui.css",
+#     )
 
 
-@app.get("/api/redoc", include_in_schema=False)
-async def get_redoc_documentation():
-    return get_redoc_html(
-        openapi_url="/api/openapi.json",
-        title="Crossborder LLM API - ReDoc",
-        redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js",
-    )
+# @app.get("/api/redoc", include_in_schema=False)
+# async def get_redoc_documentation():
+#     return get_redoc_html(
+#         openapi_url="/api/openapi.json",
+#         title="Crossborder LLM API - ReDoc",
+#         redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js",
+#     )
 
 
 # 添加自定义OpenAPI内容
-def custom_openapi():
-    if app.openapi_schema:
-        return app.openapi_schema
+# def custom_openapi():
+#     if app.openapi_schema:
+#         return app.openapi_schema
 
-    openapi_schema = get_openapi(
-        title=app.title,
-        version=app.version,
-        description=app.description,
-        routes=app.routes,
-    )
+#     openapi_schema = get_openapi(
+#         title=app.title,
+#         version=app.version,
+#         description=app.description,
+#         routes=app.routes,
+#     )
 
-    # 添加API标签描述
-    openapi_schema["tags"] = [
-        {"name": "Health", "description": "健康检查接口"},
-        {"name": "Marketing Workflow", "description": "营销工作流相关接口"},
-        {"name": "Email Intent", "description": "邮件意图识别相关接口"},
-    ]
+#     # 添加API标签描述
+#     openapi_schema["tags"] = [
+#         {"name": "Health", "description": "健康检查接口"},
+#         {"name": "Marketing Workflow", "description": "营销工作流相关接口"},
+#         {"name": "Email Intent", "description": "邮件意图识别相关接口"},
+#     ]
 
-    # 可以在这里添加更多自定义OpenAPI配置
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
+#     # 可以在这里添加更多自定义OpenAPI配置
+#     app.openapi_schema = openapi_schema
+#     return app.openapi_schema
 
 
-app.openapi = custom_openapi
+# app.openapi = custom_openapi
 
 @app.get("/")
 async def root():
@@ -176,7 +174,7 @@ async def version() -> ResponseModel:
 #     )
 
 
-@app.post("/api/marketing/run",tags="Marketing Workflow", response_model=ResponseModel)
+@app.post("/api/marketing/run", response_model=ResponseModel)
 async def run_marketing_workflow(request: MarketingRequest) -> ResponseModel:
     """
     执行完整的网红营销分析、匹配和邮件生成工作流。
@@ -237,7 +235,7 @@ async def run_marketing_workflow(request: MarketingRequest) -> ResponseModel:
 
 
 # --- Endpoint to analyze email intent ---
-@app.post("/api/email/analyze-intent", tags=["Email Intent"], response_model=ResponseModel)
+@app.post("/api/email/analyze-intent",  response_model=ResponseModel)
 async def analyze_email_intent(request: EmailIntentRequest) -> ResponseModel:
     """
     分析收到的邮件回复，判断达人的合作意向。
