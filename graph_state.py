@@ -1,30 +1,22 @@
 # %%
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel 
+from pydantic import BaseModel,Field 
 
 
-# Define structure for clarity
+# --- Supporting Data Structures for State ---
 class PlatformContentData(BaseModel):
-    """
-    Args:
-        BaseModel (_type_): _description_
-    """
-    content_title: Optional[str]
-    promo_category: Optional[str]
-    enhanced_tag: Optional[str]
-    cover_image_url: Optional[str]
-    content_url : Optional[str]
-    like_count: Optional[int]
-    comment_count: Optional[int]
-    publish_date: Optional[str]
-
+    content_title: Optional[str] = None
+    promo_category: Optional[str] = None # Assuming single category per content for simplicity in prompt
+    enhanced_tag: Optional[str] = None   # Assuming single tag per content
+    cover_image_url: Optional[str] = None
+    content_url: Optional[str] = None
+    like_count: Optional[int] = None
+    comment_count: Optional[int] = None
+    publish_date: Optional[str] = None # Consider datetime for consistency if possible
 
 class PlatformAnalysisResult(BaseModel):
-    """
-    Args:
-        BaseModel (_type_): _description_
-    """
-    audienceGender: str # 
+    # Matches output of social_media_analyst_Prompt
+    audienceGender: str
     audienceAge: str
     regionCountry: str
     language: str
@@ -36,59 +28,73 @@ class PlatformAnalysisResult(BaseModel):
     promotionAbility: str
     brandRepetitionRate: str
     contentScene: List[str]
-    platform: str
+    platform: str # To confirm which platform this analysis is for
 
 class InfluencerProfile(BaseModel):
-    # Matches the output structure of analysisPromt
-    核心内容方向: List[str]
-    综合人设_风格: str # Renamed
-    主要受众画像: str
-    商业化程度评估: str
-    跨平台内容一致性: str
-    潜在合作品牌类型: List[str]
-    达人总体评价: str
-    带货能力评级: str
+    # Matches the output structure of influencer_analysis_Prompt
+    coreContentDirection: List[str]
+    overallPersonaAndStyle: str
+    mainAudience: str
+    commercialDegree: str
+    crossPlatformConsist: str
+    potentialBrandType: List[str]
+    influencerEval: str
+    goodsCarryRating: str
+
 
 class ProductTags(BaseModel):
-    # Matches the output structure of productPromt
-    FeatureTags: List[str]
-    AudienceTags: List[str]
-    UsageScenarioTags: List[str]
+    FeatureTags: List[str] = Field(default_factory=list)
+    AudienceTags: List[str] = Field(default_factory=list)
+    UsageScenarioTags: List[str] = Field(default_factory=list)
+    coreContentDirection: List[str] = Field(default_factory=list, description="基于产品特性推断的，适合展示该产品的内容创作方向") # New
+    overallPersonaAndStyle: Optional[str] = Field(None, description="基于产品特性和定位，拟人化的产品调性和风格") # New (string, as per prompt example) - or List[str] if multiple styles are possible
+    mainAudience: Optional[str] = Field(None, description="对产品核心目标用户的画像描述") # New (string, as per prompt example)
+
 
 class MatchResult(BaseModel):
-     # Matches the output structure of matcherPromt
+    # Matches the output structure of influencer_match_Prompt
     influencerId: str
     influencerName: str
-    match_score: str # Keeping as string ('88%') as per prompt output example
+    match_score: str # e.g., "88%"
     match_rationale: str
-
 class GeneratedEmail(BaseModel):
-    # Matches the output structure of EmailPromt
+    # Matches the output structure of collab_email_Prompt
+    # Adding influencerId and Name here if your node adds them for tracking
     influencerId: str
     influencerName: str
     email_subject: str
     email_body: str
 
-
 # --- Main WorkFlow State ---
 class MarketingWorkFlowState(BaseModel):
-    # Input Data (Shoud be provied when invoking the graph)
-    product_info: Dict[str, Any]
-    influencer_data: List[Dict[str, Any]] # List of {"id": str， "platforms":{"platform_name": [PlatformContentData}]}
+    # Input Data (Should be provided when invoking the graph)
+    product_info: Dict[str, Any] = Field(..., description="Detailed product information as a dictionary.")
+    influencer_data: List[Dict[str, Any]] = Field(..., description="List of influencer data. Each dict should contain 'influencerId', 'influencerName', and 'platforms'. Platforms is Dict[str, List[PlatformContentData]].")
 
-    # Intermediate & Output Data ( Managed by the graph)
-    product_tags: Optional[ProductTags]
-    platform_analysis: Dict[str,Dict[str, PlatformAnalysisResult]] # ["influencer_id":{platform_name:analysis_result}]
-    influencer_profiles: Dict[str, InfluencerProfile] # ["influencer_id":profile]
-    match_results: List[MatchResult]
-    selected_influencers: Optional[list[MatchResult]] # Influcencer passing the match threshold
-    generated_emails: Optional[list[GeneratedEmail]] # Generated emails for the selected influencers
-    error_messages: List[str] # To collect error messages during workflow execution
-    match_threshold: float = 0.8 # Default match threshold
+    # Intermediate & Output Data (Managed by the graph)
+    product_tags: Optional[ProductTags] = None
+    platform_analysis: Optional[Dict[str, Dict[str, PlatformAnalysisResult]]] = None # {"influencer_id": {"platform_name": PlatformAnalysisResult}}
+    influencer_profiles: Optional[Dict[str, InfluencerProfile]] = None # {"influencer_id": InfluencerProfile}
+    match_results: Optional[List[MatchResult]] = None
+    selected_influencers: Optional[List[MatchResult]] = None # Influencers passing the match threshold
+    generated_emails: Optional[List[GeneratedEmail]] = None # Generated emails for the selected influencers
+    error_messages: List[str] = Field(default_factory=list) # To collect error messages
+    match_threshold: float = Field(default=75.0, description="Match score threshold (e.g., 75.0 for 75%)") # API request uses 75.0, state uses 0.8. Be consistent. Let's use 0-100 scale.
+
+    class Config:
+        arbitrary_types_allowed = True # If you use non-Pydantic types directly in state
 
 
+
+# ---Product Analysis State ---
+class ProductAnalysisState(BaseModel):
+    product_info: Dict[str, Any] = Field(..., description="Detailed product information as a dictionary.")
+    product_tags: Optional[ProductTags] = None
+    error_message: Optional[str] = None
+
+# --- Intent Analysis State ---
 class IntentAnalysisState(BaseModel):
-    email_subject: Optional[str]
+    email_subject: Optional[str] = None
     email_body: str
-    analysis_result: Optional[Dict[str, Any]]
-    error_message: Optional[str]
+    analysis_result: Optional[Dict[str, Any]] = None # Structure based on email_intent_Prompt output
+    error_message: Optional[str] = None

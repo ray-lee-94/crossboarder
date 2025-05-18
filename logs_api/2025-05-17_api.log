@@ -1,0 +1,65 @@
+[2025-05-18 09:41:56-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 2022f6ed-0d56-4d4e-8142-fbbf447c0c71, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:41:56-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:41:56-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:41:56-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:41:56-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+[2025-05-18 09:41:59-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:41:59-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+[2025-05-18 09:42:50-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:42:50-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-094250_NO_ASIN.png on timeout.
+[2025-05-18 09:42:50-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:42:50-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:42:50-product_crawl.py][run_crawl_task-570]--Job ID: 2022f6ed-0d56-4d4e-8142-fbbf447c0c71 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:42:50-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 2022f6ed-0d56-4d4e-8142-fbbf447c0c71, Status: failed
+[2025-05-18 09:43:58-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 2afdad00-3172-4204-aed9-e90d495b5fb0, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:43:58-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+[2025-05-18 09:44:46-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 5569ef79-6658-4035-b48a-8eca4bfa22ad, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:46-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:46-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:44:46-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:44:46-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+[2025-05-18 09:44:47-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:44:47-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+[2025-05-18 09:44:49-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:49-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-094449_NO_ASIN.png on timeout.
+[2025-05-18 09:44:49-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:49-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:44:49-product_crawl.py][run_crawl_task-570]--Job ID: 2afdad00-3172-4204-aed9-e90d495b5fb0 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:49-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 2afdad00-3172-4204-aed9-e90d495b5fb0, Status: failed
+[2025-05-18 09:45:37-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:45:37-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-094537_NO_ASIN.png on timeout.
+[2025-05-18 09:45:37-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:45:37-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:45:37-product_crawl.py][run_crawl_task-570]--Job ID: 5569ef79-6658-4035-b48a-8eca4bfa22ad failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:45:37-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 5569ef79-6658-4035-b48a-8eca4bfa22ad, Status: failed
+[2025-05-18 09:56:06-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 1e0e7241-0ca5-4891-9d12-84a9643a6688, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:06-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:06-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:56:06-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:56:06-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+[2025-05-18 09:56:07-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:56:07-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+[2025-05-18 09:56:58-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:58-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-095658_NO_ASIN.png on timeout.
+[2025-05-18 09:56:58-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:58-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:56:58-product_crawl.py][run_crawl_task-570]--Job ID: 1e0e7241-0ca5-4891-9d12-84a9643a6688 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:58-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 1e0e7241-0ca5-4891-9d12-84a9643a6688, Status: failed
+[2025-05-18 09:57:34-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 3e39e637-d81b-4cf0-89cf-b072103daa17, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:57:34-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+[2025-05-18 09:58:25-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:58:25-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-095825_NO_ASIN.png on timeout.
+[2025-05-18 09:58:25-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:58:25-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:58:25-product_crawl.py][run_crawl_task-570]--Job ID: 3e39e637-d81b-4cf0-89cf-b072103daa17 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:58:25-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 3e39e637-d81b-4cf0-89cf-b072103daa17, Status: failed

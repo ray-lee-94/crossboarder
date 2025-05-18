@@ -118,36 +118,61 @@ influencer_analysis_Prompt="""
 带货评级: 结合商业化程度、影响力、内容相关性进行定级。
 """
 
-# %%
-product_metadata_Prompt="""
+
+product_metadata_Prompt = """
 # Role:
 你是一位专业的电子商务商品分析师，擅长从商品描述、规格和用户反馈中提取关键信息，并将其转化为结构化的、标准化的标签。
 
-
-- 你将收到一个包含单个商品信息的JSON对象，关键字段包括：
 # 任务:
-根据提供的【商品信息JSON对象】，深入分析商品的名称、描述、规格参数等内容，提取并生成该商品的【核心特征标签 (FeatureTags)】、【目标受众标签 (AudienceTags)】和【使用场景标签 (UsageScenarioTags)】。输出结果必须是包含这三个标签列表的JSON对象，并且标签本身需要是标准化的、简洁且有代表性的词语或短语。
+根据提供的【商品信息JSON对象】，深入分析商品的名称、描述、特性（features）、价格、品牌、分类等内容，提取并生成该商品的【核心特征标签 (FeatureTags)】、【目标受众标签 (AudienceTags)】和【使用场景标签 (UsageScenarioTags)】。输出结果必须是包含这三个标签列表的JSON对象，并且标签本身需要是标准化的、简洁且有代表性的词语或短语。
 
 # 输入数据说明:
 Analyze the following product data provided in JSON format:
 ```json
 {product_data_json}
-```
- The JSON object contains key fields including:
-*   `ProductName`: 商品官方名称
-*   `Brand`: 品牌名称
-*   `AmazonCategory`: 亚马逊分类
-*   `Specifications`: 商品规格参数 (可能是JSON或文本)
-*   `Description`: 商品简介/描述文本
-*   `Price`: 商品价格
-*   `Rating`: 用户评分
-*   `ReviewCount`: 评论数量
-*   (以及其他可能相关的字段)
 
-**# 输出要求:**
+
+The JSON object contains key fields including:
+
+_id: (String, 必填) 产品唯一标识
+
+product_title: (String, 必填) 商品标题，描述了商品的主要信息
+
+price: (String, 必填) 商品价格 (例如 "19.99", 通常指美元)
+
+rating: (Number, 必填) 商品评级 (例如 2.9, 4.5)
+
+review_count: (Number, 必填) 商品的评论数量 (例如 1500)
+
+availability: (String, 必填) 商品的库存情况描述 (例如 "库存中仅剩 13 件 - 欲购从速。")
+
+seller: (String, 必填) 商品的卖家名称 (例如 "Amazon Export Sales LLC")
+
+seller_url: (String, 必填) 卖家的网址链接
+
+seller_address: (String, 必填) 卖家的地址，包含街道、城市、州和国家信息
+
+product_url: (String, 必填) 商品的网址链接
+
+asin: (String, 必填) 亚马逊标准识别号码 (例如 "B006UACRTG")
+
+image_url: (String, 必填) 商品图片链接
+
+features: (String, 必填) 商品的特点描述，列举了该商品的各项特性和功能 (这通常是提取特征标签的关键字段)
+
+description: (String, 必填) 商品的详细描述，包括产品介绍、功能、系统要求、保修信息等多方面内容
+
+category_source: (String, 必填) 商品的类别来源 (例如 "配件和耗材", "电子产品")
+
+brand_name: (String, 必填) 商品的品牌名称 (例如 "datacolor", "Sony")
+
+listing_date: (String, 必填) 商品在平台上的上架日期 (例如 "2023-01-15")
+
+(以及其他可能相关的字段)
+
+# 输出要求:
 请严格按照以下JSON格式返回分析结果，其中每个标签列表包含多个标准化的字符串标签：
 
-```json
 {{
   "FeatureTags": [
     "标签1",
@@ -164,42 +189,46 @@ Analyze the following product data provided in JSON format:
     "场景X",
     "场景Y",
     // ... 更多场景标签
+  ],
+  "coreContentDirection": [
+    "理想达人内容方向1 (例如: 数码产品深度测评)", "理想达人内容方向2 (例如: 日常Vlog中的产品应用)"
+  ],
+  "overallPersonaAndStyle": [
+    "理想达人风格1 (例如: 专业客观)", "理想达人风格2 (例如: 轻松有趣)"
+  ],
+  "mainAudience": [
+    "理想达人受众1 (例如: 科技爱好者)", "理想达人受众2 (例如: 年轻学生群体)"
   ]
 }}
 # 分析与打标指南:
+第一部分：商品自身属性标签
 特征标签 (FeatureTags):
-仔细阅读 ProductName, Description, Specifications。
-识别并提取描述商品功能、技术、性能、材质、设计、规格亮点等的关键词或短语。
-标准化: 将提取的信息转化为简洁、通用的标签。例如：
-"64G 内存", "4552H 音频存储", "impressive 64GB TF card" => 大容量存储(64GB), 超长录音(4500h+)
-"高清 3072 kbps", "卓越的录音机质量" => 高清录音(3072kbps)
-"自动降噪", "PCM 智能降噪技术" => 智能降噪, PCM降噪
-"100H 超长电池寿命", "500mAh 可充电电池" => 超长续航(100h), 大容量电池(500mAh)
-"低电量时自动保存" => 低电量自动保存
-"快速文件下载", "USB-C电缆可将录音快速传输" => 快速文件传输, USB-C接口
-"密码保护" => 密码保护
-"语音激活录音机", "检测到声音时自动开始录制" => 语音激活录音(VOR)
-"MP3 播放器", "变速播放", "A-B 重复" => MP3播放器, 变速播放, A-B复读
-"内置麦克风", "夹式麦克风" => 内置麦克风, 外接麦克风(附带)
-**避免:**过于营销性的词语（如 "卓越的"）、不具体的描述、重复信息。
-受众标签 (AudienceTags):
-分析 Description 中直接或间接提到的目标用户群体。
-思考哪些职业、身份、需求的人会购买和使用这个产品。
-标准化: 使用通用的用户群体标签。例如：
-"专业人士", "工作者", "记者", "需要录制...的人" => 专业人士, 记者, 学生, 职场人士
-"讲座、会议、采访" 的参与者或组织者 => 会议记录者, 采访者, 讲师, 学生
-暗示需要长时间录音和保密 => 需要长时间录音者, 注重隐私用户
-结合商品特性反推，例如大容量存储可能适合 内容创作者。
+仔细阅读 product_title, description, features, brand_name, category_source。
+提取描述商品功能、技术、性能、材质、设计、规格亮点的关键词。
+例如: "大容量存储(64GB)", "高清录音(3072kbps)", "智能降噪", "超长续航(100h)", "密码保护", "USB-C接口"。
+目标用户标签 (AudienceTags):
+分析 description, product_title, features, category_source 中直接或间接提到的直接购买和使用该产品的用户群体。
+例如: "专业人士", "记者", "学生", "职场人士", "会议记录者", "注重隐私用户"。
 使用场景标签 (UsageScenarioTags):
-分析 Description 中明确提到的或暗示的产品使用环境或具体用途。
-思考用户会在哪些场合、情况或活动中使用该产品。
-标准化: 使用简洁的场景描述。例如：
-"讲座", "会议", "采访", "演讲", "课堂" => 讲座录音, 会议记录, 采访录音, 课堂笔记, 演讲记录
-需要长时间录音的场景 => 长时间录音场景
-需要便携录音 => 便携录音
-学习语言（A-B复读）=> 语言学习
-播放音乐 => 音乐播放
-综合判断: 结合所有输入信息进行判断，确保标签准确反映商品核心价值。
+从 description, features, product_title 推断商品最常被使用的具体环境或情境。
+例如: "商务会议", "课堂录音", "采访记录", "个人备忘", "音乐练习"。
+第二部分：理想合作达人画像特征 (基于商品反推，用于初步筛选达人)
+核心内容方向 (coreContentDirection):
+思考：什么样的达人内容主题或领域最适合自然地融入这款商品？
+基于商品的FeatureTags、AudienceTags和UsageScenarioTags，推断出与商品特性高度匹配的达人内容创作方向。
+例如：对于一款“专业录音笔”，理想达人的coreContentDirection可能是 ["生产力工具推荐", "学习方法与技巧", "数码装备测评", "记者/律师工作Vlog", "在线课程录制心得"]。
+请提供3-5个主要方向。
+综合人设/风格 (overallPersonaAndStyle):
+思考：什么样的达人形象、视频风格或整体调性与这款商品的品牌形象和目标用户最契合？
+结合商品品牌 (brand_name)、价格 (price)、设计感（从image_url, description推断）和核心功能。
+例如：对于一款“专业录音笔”，理想达人的overallPersonaAndStyle可能是 ["专业严谨", "干货分享型", "高效实用派", "简洁明了", "值得信赖的专家形象"]。
+请提供2-4个主要风格描述。
+主要受众画像 (mainAudience):
+思考：这款商品的最终消费者会关注哪些类型的达人？这些达人的粉丝通常具有哪些特征？
+此处的受众画像是描述理想达人的粉丝群体，它应该与商品的AudienceTags（直接用户）相关联，但更侧重于粉丝的兴趣、圈层和消费习惯。
+例如：对于一款“专业录音笔”，其AudienceTags可能是“记者”、“学生”。理想合作达人的mainAudience可能是 ["关注效率提升的职场人士", "考研考公党", "知识付费群体", "数码科技爱好者", "播客听众"]。
+请提供2-4个受众画像描述。
+确保所有输出的列表中的元素都是简洁、明确的字符串。
 """
 # %%
 

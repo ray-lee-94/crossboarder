@@ -53,3 +53,14 @@ crossborder-llm-api/
 
 - GET /api/health - 健康检查接口
 - GET /api/version - 获取API版本信息
+
+
+## 文件说明
+.
+├── graph_state.py        # LangGraph state definitions (MarketingWorkFlowState, IntentAnalysisState)
+├── graph_nodes.py        # LangGraph node functions & compiled workflow_app, intent_app
+├── main.py               # FastAPI app definition, routers, and endpoint logic
+├── prompts.py            # All LLM prompt templates
+├── product_crawl.py      # Your AmazonCrawler class and related logic
+├── requirements.txt      # Project dependencies
+└── .env                  # Environment variables (AZURE_API_KEY, etc.)

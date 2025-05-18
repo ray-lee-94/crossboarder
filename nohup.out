@@ -1,0 +1,583 @@
+Marketing workflow compiled successfully!
+Intent analysis workflow compiled successfully!
+INFO:     Started server process [140412]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:49644 - "GET /api/docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49644 - "GET /api/openapi.json HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [140412]
+Marketing workflow compiled successfully!
+Intent analysis workflow compiled successfully!
+INFO:     Started server process [140562]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:45612 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45612 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:45616 - "GET /api/docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45616 - "GET /api/openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38336 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38348 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38352 - "POST /api/products/crawl HTTP/1.1" 200 OK
+[2025-05-17 18:39:26-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 53c624c3-fa49-4a65-a416-c286db419c17, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:39:26-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:39:26-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-17 18:39:26-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-17 18:39:26-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+INFO:     127.0.0.1:38368 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+[2025-05-17 18:39:26-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-17 18:39:26-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+INFO:     127.0.0.1:38374 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55198 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55202 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47172 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47174 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49962 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49966 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56332 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56342 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38092 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+[2025-05-17 18:40:17-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:40:17-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250517-184017_NO_ASIN.png on timeout.
+[2025-05-17 18:40:17-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:40:17-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-17 18:40:17-product_crawl.py][run_crawl_task-570]--Job ID: 53c624c3-fa49-4a65-a416-c286db419c17 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:40:17-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 53c624c3-fa49-4a65-a416-c286db419c17, Status: failed
+INFO:     127.0.0.1:38096 - "GET /api/products/crawl?job_id=53c624c3-fa49-4a65-a416-c286db419c17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38100 - "GET /api/products/crawl?job_id=non_existent_job_id HTTP/1.1" 404 Not Found
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:38104 - "POST /api/products/analyze HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:38114 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:38116 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46418 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Product analysis successful.
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:46426 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:41474 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:41476 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:41480 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51736 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51744 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51752 - "POST /api/products/crawl HTTP/1.1" 200 OK
+[2025-05-17 18:41:49-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 33990580-17ff-4dae-a448-58176b0e5f32, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:41:49-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:41:49-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-17 18:41:49-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-17 18:41:49-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+INFO:     127.0.0.1:51764 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+[2025-05-17 18:41:49-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-17 18:41:49-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+INFO:     127.0.0.1:49128 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49138 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35178 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35180 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46552 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46564 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39734 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39744 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58758 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58772 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+[2025-05-17 18:42:40-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:42:40-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250517-184240_NO_ASIN.png on timeout.
+[2025-05-17 18:42:40-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:42:40-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-17 18:42:40-product_crawl.py][run_crawl_task-570]--Job ID: 33990580-17ff-4dae-a448-58176b0e5f32 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 18:42:40-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 33990580-17ff-4dae-a448-58176b0e5f32, Status: failed
+INFO:     127.0.0.1:38162 - "GET /api/products/crawl?job_id=33990580-17ff-4dae-a448-58176b0e5f32 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38170 - "GET /api/products/crawl?job_id=non_existent_job_id HTTP/1.1" 404 Not Found
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:38182 - "POST /api/products/analyze HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:38186 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:38188 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53738 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Product analysis successful.
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:53742 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:53756 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:46130 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:46138 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:50138 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50140 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50146 - "POST /api/products/crawl HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50162 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+[2025-05-17 19:20:49-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 762a3752-04e9-4572-a674-d2a766d33ed6, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:20:49-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:20:49-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-17 19:20:49-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-17 19:20:49-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+[2025-05-17 19:20:49-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-17 19:20:49-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+INFO:     127.0.0.1:49416 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49420 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55610 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55614 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42618 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42632 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53366 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53376 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49832 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49848 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+[2025-05-17 19:21:40-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:21:40-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250517-192140_NO_ASIN.png on timeout.
+[2025-05-17 19:21:40-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:21:41-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-17 19:21:41-product_crawl.py][run_crawl_task-570]--Job ID: 762a3752-04e9-4572-a674-d2a766d33ed6 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:21:41-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 762a3752-04e9-4572-a674-d2a766d33ed6, Status: failed
+INFO:     127.0.0.1:57592 - "GET /api/products/crawl?job_id=762a3752-04e9-4572-a674-d2a766d33ed6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57602 - "GET /api/products/crawl?job_id=non_existent_job_id HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57604 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:57620 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:57624 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43886 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Product analysis successful.
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:43902 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:43906 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:43912 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:43926 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51314 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51316 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51330 - "POST /api/products/crawl HTTP/1.1" 200 OK
+[2025-05-17 19:25:56-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 9e7230a7-19fc-4d63-ac12-9bebbdebdc9e, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:25:56-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:25:56-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-17 19:25:56-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-17 19:25:56-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+INFO:     127.0.0.1:51342 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:51352 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+[2025-05-17 19:25:57-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-17 19:25:57-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:51362 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38834 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Product analysis successful.
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:38844 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:38850 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:38866 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:38868 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+[2025-05-17 19:26:48-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:26:48-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250517-192648_NO_ASIN.png on timeout.
+[2025-05-17 19:26:48-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:26:48-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-17 19:26:48-product_crawl.py][run_crawl_task-570]--Job ID: 9e7230a7-19fc-4d63-ac12-9bebbdebdc9e failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-17 19:26:48-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 9e7230a7-19fc-4d63-ac12-9bebbdebdc9e, Status: failed
+INFO:     127.0.0.1:47448 - "GET /api/docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47448 - "GET /api/openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46900 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46906 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46910 - "POST /api/products/crawl HTTP/1.1" 200 OK
+[2025-05-18 09:41:56-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 2022f6ed-0d56-4d4e-8142-fbbf447c0c71, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:41:56-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:41:56-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:41:56-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:41:56-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+INFO:     127.0.0.1:46924 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:46932 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+[2025-05-18 09:41:59-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:41:59-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:46944 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41540 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Invalid json output: ```json
+{
+  "FeatureTags": [
+    "测试产品",
+    "无品牌",
+    "无分类信息"
+    // ... 商品的信息有限，因此仅提取基本描述相关标签
+  ],
+  "AudienceTags": [
+    "通用人群",
+    "测试人员"
+    // ... 适用于任何对该产品有兴趣的消费者，重点强调“测试”相关的目标受众
+  ],
+  "UsageScenarioTags": [
+    "产品试验",
+    "功能测试",
+    "开发验证"
+    // ... 使用场景集中于测试和验证用途
+  ]
+}
+```
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE 
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:41548 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:41562 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:53940 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53954 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+[2025-05-18 09:42:50-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:42:50-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-094250_NO_ASIN.png on timeout.
+[2025-05-18 09:42:50-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:42:50-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:42:50-product_crawl.py][run_crawl_task-570]--Job ID: 2022f6ed-0d56-4d4e-8142-fbbf447c0c71 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:42:50-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 2022f6ed-0d56-4d4e-8142-fbbf447c0c71, Status: failed
+INFO:     127.0.0.1:49594 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49596 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49604 - "POST /api/products/crawl HTTP/1.1" 200 OK
+[2025-05-18 09:43:58-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 2afdad00-3172-4204-aed9-e90d495b5fb0, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:43:58-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+INFO:     127.0.0.1:49614 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49626 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:43:58-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:49636 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40080 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Product analysis successful.
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:40094 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:52700 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:52714 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52728 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:41316 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41322 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41336 - "POST /api/products/crawl HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41348 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+[2025-05-18 09:44:46-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 5569ef79-6658-4035-b48a-8eca4bfa22ad, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:46-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:46-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:44:46-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:44:46-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+INFO:     127.0.0.1:41358 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+[2025-05-18 09:44:47-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:44:47-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+[2025-05-18 09:44:49-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:49-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-094449_NO_ASIN.png on timeout.
+[2025-05-18 09:44:49-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:49-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:44:49-product_crawl.py][run_crawl_task-570]--Job ID: 2afdad00-3172-4204-aed9-e90d495b5fb0 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:44:49-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 2afdad00-3172-4204-aed9-e90d495b5fb0, Status: failed
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:41364 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47238 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Product analysis successful.
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:47246 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:43892 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:43904 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:43918 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+[2025-05-18 09:45:37-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:45:37-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-094537_NO_ASIN.png on timeout.
+[2025-05-18 09:45:37-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:45:37-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:45:37-product_crawl.py][run_crawl_task-570]--Job ID: 5569ef79-6658-4035-b48a-8eca4bfa22ad failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:45:37-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 5569ef79-6658-4035-b48a-8eca4bfa22ad, Status: failed
+INFO:     127.0.0.1:41882 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41888 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41900 - "POST /api/products/crawl HTTP/1.1" 200 OK
+[2025-05-18 09:56:06-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 1e0e7241-0ca5-4891-9d12-84a9643a6688, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:06-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:06-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:56:06-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:56:06-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+INFO:     127.0.0.1:41914 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:41916 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+[2025-05-18 09:56:07-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:56:07-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:41930 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40174 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Product analysis successful.
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:40188 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:40192 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:40206 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:40220 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+[2025-05-18 09:56:58-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:58-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-095658_NO_ASIN.png on timeout.
+[2025-05-18 09:56:58-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:58-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:56:58-product_crawl.py][run_crawl_task-570]--Job ID: 1e0e7241-0ca5-4891-9d12-84a9643a6688 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:56:58-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 1e0e7241-0ca5-4891-9d12-84a9643a6688, Status: failed
+INFO:     127.0.0.1:35678 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35692 - "GET /api/version HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35698 - "POST /api/products/crawl HTTP/1.1" 200 OK
+[2025-05-18 09:57:34-product_crawl.py][run_crawl_task-550]--Background task started for job ID: 3e39e637-d81b-4cf0-89cf-b072103daa17, URL: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:57:34-product_crawl.py][log-196]--Starting crawl for single product: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-80]--Initializing browser...
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-97]--Operating System: linux
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-173]--No suitable local ChromeDriver found or specified. Attempting automatic download by Selenium Manager...
+INFO:     127.0.0.1:35710 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:35726 - "POST /api/products/analyze HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Error during product analysis: Object of type HttpUrl is not JSON serializable
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 1 influencers...
+LG Node: Analyzing platforms for influencer Pixel Perfect Prints (pro_photo_print_01)...
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-176]--Using automatically managed ChromeDriver.
+[2025-05-18 09:57:34-product_crawl.py][_init_browser-179]--Browser initialized successfully.
+LG Node:     Analysis successful for youtube.
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node:   Generating profile for: Pixel Perfect Prints (pro_photo_print_01)
+LG Node:     Profile generated successfully for Pixel Perfect Prints.
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:35734 - "POST /api/marketing/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50314 - "POST /api/marketing/run HTTP/1.1" 422 Unprocessable Entity
+LG Node: Analyzing product info...
+LG Node: Product analysis successful.
+LG Node: Analyzing social media platforms...
+LG Node: Analyzing platforms for 0 influencers...
+LG Node: Social media platform analysis complete.
+LG Node: --- Generating Influencer Profiles ---
+LG Node: --- Matching Influencers to Product ---
+LG Node: --- Filtering Matches ---
+LG Node:   No match results to filter.
+LG Node: --- Checking if emails should be generated ---
+LG Node:   Condition not met: No selected influencers. Ending workflow.
+INFO:     127.0.0.1:50322 - "POST /api/marketing/run HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+LG Node:   Intent analysis successful.
+INFO:     127.0.0.1:50332 - "POST /api/outreachs/intent HTTP/1.1" 200 OK
+LG Node: --- Analyzing Reply Intent ---
+INFO:     127.0.0.1:50338 - "POST /api/outreachs/intent HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:45110 - "POST /api/outreachs/intent HTTP/1.1" 422 Unprocessable Entity
+[2025-05-18 09:58:25-product_crawl.py][log-198]--Timeout loading product page: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:58:25-product_crawl.py][log-196]--Screenshot saved to /root/crossboarder/logs_api/timeout_20250518-095825_NO_ASIN.png on timeout.
+[2025-05-18 09:58:25-product_crawl.py][log-198]--Failed to extract details for: https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:58:25-product_crawl.py][log-196]--Browser quit successfully.
+[2025-05-18 09:58:25-product_crawl.py][run_crawl_task-570]--Job ID: 3e39e637-d81b-4cf0-89cf-b072103daa17 failed: Failed to extract details for https://www.amazon.com/dp/B08N5WRWNW
+[2025-05-18 09:58:25-product_crawl.py][run_crawl_task-582]--Background task finished for job ID: 3e39e637-d81b-4cf0-89cf-b072103daa17, Status: failed
