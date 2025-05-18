@@ -1,6 +1,7 @@
 import json 
 import os
 from dotenv import load_dotenv
+from typing import Dict, List, Optional, Union, Any
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
@@ -396,6 +397,16 @@ product_analysis_app = product_analysis_builder.compile()
 print("product analysis compiled successfully!")
 
 
+
+influcencer_analysis_builder= StateGraph(MarketingWorkFlowState)
+influcencer_analysis_builder.add_node("analyze_influencers_platforms_node", analyze_influencers_platforms_node)
+influcencer_analysis_builder.add_node("generate_influencer_profiles_node", generate_influencer_profiles_node)
+influcencer_analysis_builder.add_edge(START, "analyze_influencers_platforms_node")
+
+influcencer_analysis_builder.add_edge("generate_influencer_profiles_node", END)
+influencer_app= influcencer_analysis_builder.compile()
+print("Influencer analysis app compiled successfully!")
+
 # --- Compile Marketing Workflow ---
 workflow_builder = StateGraph(MarketingWorkFlowState)
 
@@ -427,37 +438,50 @@ workflow_app = workflow_builder.compile()
 print("Marketing workflow compiled successfully!")
 
 
-# --- Intent Analysis Node Function ---
-def intent_analysis_node(state: IntentAnalysisState) -> dict:
-    print("LG Node: --- Analyzing Reply Intent ---")
+
+# %%
+def intent_analysis_node(state: IntentAnalysisState) -> Dict[str, Any]: # Return type is a dict of fields to update
+    print("LG Node: --- Analyzing Reply Intent (Pydantic State) ---")
+    
+    # Access fields as attributes from the Pydantic state model
     subject = state.email_subject
     body = state.email_body
 
-    if not body:
+    if not body: # Empty string "" is falsy
+        print("LG Node: Email body is empty.")
+        # Return a dictionary of the fields to update in the Pydantic state
         return {"analysis_result": None, "error_message": "Email body is empty."}
 
     intent_prompt = ChatPromptTemplate.from_template(email_intent_Prompt)
-    # The prompt returns a dict with specific keys
-    intent_chain = intent_prompt | llm | JsonOutputParser()
+    # If you had a Pydantic model for the output of email_intent_Prompt (e.g., EmailIntentLLMOutput):
+    # intent_chain = intent_prompt | llm | JsonOutputParser(pydantic_object=EmailIntentLLMOutput)
+    # Then analysis_result could be typed as Optional[EmailIntentLLMOutput] in IntentAnalysisState
+    intent_chain = intent_prompt | llm | JsonOutputParser() # Returns a dict
 
     try:
         input_dict = {
             "email_subject": subject if subject else "N/A",
             "email_body": body
         }
-        parsed_result_dict = intent_chain.invoke(input_dict)
+        # The result from the LLM chain (after JsonOutputParser) is a dictionary
+        parsed_result_dict: Optional[Dict[str, Any]] = intent_chain.invoke(input_dict)
 
-        # Basic validation (more specific validation could be done based on expected keys)
         if parsed_result_dict and isinstance(parsed_result_dict, dict) and "cooperation_intent" in parsed_result_dict:
             print("LG Node:   Intent analysis successful.")
             return {"analysis_result": parsed_result_dict, "error_message": None}
         else:
-            print("LG Node:   Intent analysis failed or invalid format.")
-            return {"analysis_result": None, "error_message": "Intent analysis returned invalid format."}
-    except Exception as e:
-        print(f"LG Node:   Error during intent analysis: {e}")
-        return {"analysis_result": None, "error_message": f"Intent analysis exception: {e}"}
-
+            error_msg = "Intent analysis returned invalid or incomplete format."
+            if parsed_result_dict:
+                error_msg += f" Got: {str(parsed_result_dict)[:200]}"
+            print(f"LG Node:   {error_msg}")
+            return {"analysis_result": None, "error_message": error_msg}
+            
+    except Exception as e: # Catches OutputParserException and others
+        error_msg = f"Intent analysis LLM chain exception: {str(e)}"
+        if hasattr(e, 'llm_output') and e.llm_output: # For OutputParserException
+            error_msg += f". LLM Output: '{e.llm_output[:300]}...'"
+        print(f"LG Node:   {error_msg}\n{traceback.format_exc()}")
+        return {"analysis_result": None, "error_message": error_msg}
 # --- Compile Intent Analysis Workflow ---
 intent_workflow_builder = StateGraph(IntentAnalysisState)
 intent_workflow_builder.add_node("analyze_reply_intent_node", intent_analysis_node)

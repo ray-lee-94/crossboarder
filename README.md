@@ -41,13 +41,6 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 ## 项目结构
 
-```
-crossborder-llm-api/
-├── main.py         # 主应用入口
-├── pyproject.toml  # 项目配置
-├── README.md       # 项目说明
-└── .gitignore      # Git忽略文件
-```
 
 ## 接口示例
 

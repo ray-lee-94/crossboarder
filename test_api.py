@@ -332,41 +332,20 @@ class TestEmailIntentEndpoint:
         assert "is_urgent" in data_field and isinstance(data_field["is_urgent"], bool)
         assert "notification_summary" in data_field
 
-
     def test_email_intent_empty_body(self):
-        """Test Case 5.2: Email Intent - Empty Body (should be caught by Pydantic or logic)"""
+        """Test Case 5.2: Email Intent - Empty Body"""
         url = f"{BASE_URL}/api/outreachs/intent"
         payload = {
             "email_subject": "Test",
             "email_body": "" # Empty body
         }
         response = requests.post(url, json=payload, timeout=DEFAULT_TIMEOUT)
-        response_json = print_response_details(response)
+        response_json = print_response_details(response) # Make sure this returns the parsed JSON
 
-        # If Pydantic model for EmailIntentRequest makes email_body non-empty (e.g. min_length=1),
-        # it will be a 422. If the graph node handles it, it might be a 200 with an error message.
-        # Assuming Pydantic allows empty string but graph node returns error:
-        if response.status_code == 200:
-            assert response_json is not None
-            assert response_json.get("success") is True # The API call itself might be "successful"
-            # Check for specific error message from the intent_app if it processes it
-            assert "data" in response_json and isinstance(response_json["data"], dict)
-            # This depends on how intent_app reports "Email body is empty."
-            # If it raises an exception that FastAPI catches as 500:
-            # assert response.status_code == 500 
-            # If it sets an error in the response data:
-            # assert "error_message" in response_json["data"] and "Email body is empty" in response_json["data"]["error_message"]
-            # For your intent_app, it returns an error_message in the state, so it should be a 200 OK
-            # with the error details in the response data if the API passes that through.
-            # However, the provided main.py for intent raises HTTPException if error_message is present.
-            assert response_json.get("message") == "Email intent analysis failed: Email body is empty." # Expected if main.py converts it to HTTPException
-            assert response_json.get("success") is False # Since it's an error state
-        elif response.status_code == 422: # If Pydantic's `email_body: str` (non-optional) rejects empty
-             assert response_json is not None
-             assert "detail" in response_json
-        else:
-            assert False, f"Unexpected status code: {response.status_code}"
-
+        assert response.status_code == 200# The API call itself is successful
+        assert response_json is not None
+        assert response_json.get("success") is False # Business logic indicates failure
+        assert response_json.get("message") == "Email intent analysis failed: Email body is empty."
 
     def test_email_intent_validation_error_missing_field(self):
         """Test Case 5.3: Email Intent - Input Validation Error (Missing body)"""
