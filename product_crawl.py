@@ -16,6 +16,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import (
     StaleElementReferenceException, NoSuchElementException, TimeoutException
 )
@@ -215,8 +216,8 @@ class AmazonCrawler:
             )
         except TimeoutException:
             self.log(f"Timeout loading product page: {product_url}", "error")
-            timestamp = time.strftime("%Y%m%d-%H%M%S")
-            screenshot_path = os.path.join(BASE_DIR, "logs_api", f"timeout_{timestamp}_{details.get('asin', 'NO_ASIN')}.png")
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        screenshot_path = os.path.join(BASE_DIR, "logs_api", f"timeout_{timestamp}_{details.get('asin', 'NO_ASIN')}.png")
         try:
             self.browser.save_screenshot(screenshot_path)
             self.log(f"Screenshot saved to {screenshot_path} on timeout.")
