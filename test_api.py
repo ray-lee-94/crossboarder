@@ -4,6 +4,9 @@ import os
 import json
 import time # For crawl tests
 
+from main import InfluencerAnalysisRequest, InfluencerAnalysisRequest, InfluencerPlatformContentInput, InfluencerAnalysisResponseData
+from graph_state import PlatformContentData
+
 # --- Configuration ---
 BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000") # Ensure this matches your FastAPI app
 DEFAULT_TIMEOUT = 30 # Default timeout for requests
@@ -360,3 +363,517 @@ class TestEmailIntentEndpoint:
         assert response.status_code == 422 # FastAPI validation error
         assert response_json is not None
         assert "detail" in response_json
+
+
+class TestAnalyzeInfluencerDetailsEndpoint:
+
+    def test_analyze_influencer_details_success_single_influencer(self,):
+        """Test successful analysis for a single influencer with content."""
+
+        url = f"{BASE_URL}/api/influencers/analyze-details"
+        payload = InfluencerAnalysisRequest(
+            influencers_input_data=[
+                InfluencerPlatformContentInput(
+                    influencerId="inf_test_001",
+                    influencerName="TechExplorer",
+                    platforms={
+                        "youtube": [
+                             PlatformContentData(
+                                content_title="Reviewing the new SuperPhone X!", 
+                                like_count=1200, 
+                                comment_count=150, 
+                                publish_date="2023-11-01", 
+                                promo_category="Smartphones",
+                                cover_image_url="http://example.com/image1.jpg" # Test HttpUrl serialization
+                            ),
+                            PlatformContentData(
+                                content_title="My Top 5 Productivity Apps", 
+                                like_count=800, 
+                                comment_count=90, 
+                                publish_date="2023-10-15",
+                                enhanced_tag="productivity, apps"
+                            )
+                        ],
+                        "tiktok": [
+                             PlatformContentData(
+                                content_title="Quick look: SuperPhone X camera", 
+                                like_count=5000, 
+                                comment_count=250, 
+                                publish_date="2023-11-02"
+                            )
+                        ]
+                    }
+                )
+            ]
+        ).model_dump(mode="json") # Ensures HttpUrl becomes string
+
+        response = requests.post(url, json=payload, timeout=LONG_TIMEOUT)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        assert response_json["success"] is True
+        assert response_json.get("message") == "Influencer analysis completed."
+        assert "data" in response_json and response_json["data"] is not None
+        
+        # Validate the structure of the data field using the specific response data model
+        response_data_obj = InfluencerAnalysisResponseData(**response_json["data"])
+        assert response_data_obj.influencer_profiles is not None
+        assert isinstance(response_data_obj.influencer_profiles, dict)
+        assert "inf_test_001" in response_data_obj.influencer_profiles
+        
+        profile = response_data_obj.influencer_profiles["inf_test_001"]
+        assert profile.influencerId == "inf_test_001" # Check if graph populates this correctly
+        assert profile.influencerName == "TechExplorer" # Check if graph populates this
+        assert len(profile.coreContentDirection) > 0, "Expected LLM to derive core content direction"
+        assert profile.overallPersonaAndStyle is not None, "Expected LLM to derive persona/style"
+        # Add more assertions based on expected LLM output for the given content
+
+    def test_analyze_influencer_details_multiple_influencers(self,):
+        """Test successful analysis for multiple influencers."""
+        url = f"{BASE_URL}/api/influencers/analyze-details"
+        payload = InfluencerAnalysisRequest(
+            influencers_input_data=[
+                InfluencerPlatformContentInput(
+                    influencerId="inf_multi_A", influencerName="AlphaVlogger",
+                    platforms={"youtube": [ PlatformContentData(content_title="Alpha's Day")]}
+                ),
+                InfluencerPlatformContentInput(
+                    influencerId="inf_multi_B", influencerName="BetaGamer",
+                    platforms={"twitch": [PlatformContentData(content_title="Beta's Game Stream")]}
+                )
+            ]
+        ).model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=LONG_TIMEOUT)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        assert response_json["success"] is True
+        assert "data" in response_json and response_json["data"] is not None
+        response_data_obj = InfluencerAnalysisResponseData(**response_json["data"])
+        assert response_data_obj.influencer_profiles is not None
+        assert len(response_data_obj.influencer_profiles) == 2
+        assert "inf_multi_A" in response_data_obj.influencer_profiles
+        assert "inf_multi_B" in response_data_obj.influencer_profiles
+        assert response_data_obj.influencer_profiles["inf_multi_A"].coreContentDirection is not None
+        assert response_data_obj.influencer_profiles["inf_multi_B"].coreContentDirection is not None
+
+    def test_analyze_influencer_details_no_platform_content(self):
+        """Test analysis for an influencer with no platform content provided."""
+        url = f"{BASE_URL}/api/influencers/analyze-details"
+        payload = InfluencerAnalysisRequest(
+            influencers_input_data=[
+                InfluencerPlatformContentInput(
+                    influencerId="inf_no_content_002",
+                    influencerName="SilentCreator",
+                    platforms={} # Empty platforms dict
+                )
+            ]
+        ).model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=LONG_TIMEOUT) # LLM might still run
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        assert response_json["success"] is True # The process itself might complete
+        assert "data" in response_json and response_json["data"] is not None
+        response_data_obj = InfluencerAnalysisResponseData(**response_json["data"])
+        assert response_data_obj.influencer_profiles is not None
+        assert "inf_no_content_002" in response_data_obj.influencer_profiles
+        profile = response_data_obj.influencer_profiles["inf_no_content_002"]
+        # Expect "无法判断" or empty lists for fields derived from content
+        assert not profile.coreContentDirection or \
+               any("无法判断" in item.lower() for item in profile.coreContentDirection) # Be flexible with LLM
+        assert profile.overallPersonaAndStyle is None or "无法判断" in profile.overallPersonaAndStyle.lower()
+        # The API returns the profile object even if it's mostly "unable to determine"
+
+    def test_analyze_influencer_details_empty_input_list(self):
+        """Test analysis with an empty list of influencers."""
+        url = f"{BASE_URL}/api/influencers/analyze-details"
+        payload = InfluencerAnalysisRequest(
+            influencers_input_data=[] # Empty list
+        ).model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=LONG_TIMEOUT) # Should be fast
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        assert response_json["success"] is True
+        assert response_json.get("message") == "Influencer analysis completed."
+        assert "data" in response_json and response_json["data"] is not None
+        response_data_obj = InfluencerAnalysisResponseData(**response_json["data"])
+        assert response_data_obj.influencer_profiles is not None
+        assert len(response_data_obj.influencer_profiles) == 0 # No profiles generated
+
+    def test_analyze_influencer_details_input_validation_error(self):
+        """Test with malformed input (e.g., missing 'influencers_input_data')."""
+        url = f"{BASE_URL}/api/influencers/analyze-details"
+        payload = {
+            "some_other_key": "some_value" 
+            # influencers_input_data is missing
+        }
+        response = requests.post(url, json=payload, timeout=LONG_TIMEOUT)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 422 # Pydantic validation error
+        assert response_json["detail"][0]["msg"] == "Field required" # Or similar Pydantic message
+        assert response_json["detail"][0]["loc"] == ["body", "influencers_input_data"]
+
+    def test_analyze_influencer_details_partial_error_in_graph(self):
+        """
+        Test scenario where one influencer analysis succeeds and another fails within the graph.
+        This depends on how your graph collects and reports errors.
+        The current API endpoint returns success=False if ANY errors are present in error_messages.
+        """
+        url = f"{BASE_URL}/api/influencers/analyze-details"
+        # To simulate an error, one might have invalid content data that causes an LLM issue for one influencer
+        # but not the other. This is hard to reliably mock without deeper graph instrumentation.
+        # For now, let's assume if the graph returns any error_messages, success becomes False.
+        
+        # This test is more conceptual for this API structure.
+        # If you had a way to inject an error for one influencer in the mock LLM, this would be more concrete.
+        # Let's test the API's behavior if the graph returns errors.
+        # We can't directly make the graph fail partially via API input here easily.
+        # So, this test case is more about verifying the API's error reporting logic if the graph *were* to produce partial errors.
+        # The current endpoint logic: `success=True if not errors else False`
+        
+        # Simulating a case where the graph might populate `errors` but still produce some profiles.
+        # This would require mocking the `influencer_app.invoke` call.
+        # For an integration test, we expect the LLM to work or fail fully for each item based on input quality.
+        # Let's assume the LLM fails for one influencer due to bad (e.g., too long, nonsensical) content.
+        payload = InfluencerAnalysisRequest(
+            influencers_input_data=[
+                InfluencerPlatformContentInput(
+                    influencerId="inf_good_003", influencerName="GoodInfluencer",
+                    platforms={"youtube": [PlatformContentData(content_title="Valid short content")]}
+                ),
+                InfluencerPlatformContentInput(
+                    influencerId="inf_bad_content_004", influencerName="BadContentInfluencer",
+                    # Assume this content is so bad/long it makes the LLM error out for this item only.
+                    # This is hard to guarantee without mocking the LLM.
+                    platforms={"youtube": [PlatformContentData(content_title="Extremely long gibberish..." * 10000)]}
+                )
+            ]
+        ).model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=LONG_TIMEOUT* 2) # Longer timeout for potentially slow error
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200 # API call itself is fine
+        # If the graph node adds to `error_messages` for inf_bad_content_004
+        if response_json["errors"]:
+            assert response_json["success"] is False
+            assert "Influencer analysis completed with some errors." in response_json["message"]
+            assert len(response_json["errors"]) > 0
+        else:
+            # If LLM somehow processes both without error (unlikely with truly bad input)
+            assert response_json["success"] is True
+
+        assert "data" in response_json and response_json["data"] is not None
+        response_data_obj = InfluencerAnalysisResponseData(**response_json["data"])
+        assert response_data_obj.influencer_profiles is not None
+        
+        # We expect a profile for the good one, maybe not for the bad one, or a minimal one.
+        assert "inf_good_003" in response_data_obj.influencer_profiles
+        if "inf_bad_content_004" in response_data_obj.influencer_profiles:
+            # It might still create a profile entry even if analysis had issues for that specific one.
+            pass 
+            # print("Profile for 'inf_bad_content_004' was created despite potentially bad input.")
+
+
+class TestRecommendInfluencersEndpoint:
+    """Tests for /api/influencers/recommend"""
+
+    # Using fixtures for sample data can make tests cleaner
+    @pytest.fixture
+    def tech_product_tags(self) -> ProductT:
+        return ProductTagsForRecommend(
+            coreContentDirection=["Tech Reviews", "Gadget Unboxing", "Software"],
+            overallPersonaAndStyle=["Informative", "Modern", "Expert"],
+            mainAudience=["Tech Enthusiasts", "Gamers", "Developers (20-40)"]
+        )
+
+    @pytest.fixture
+    def sample_influencer_profiles_for_reco(self) -> Dict[str, InfluencerProfileForRecommendInput]:
+        return {
+            "inf_tech_A": InfluencerProfileForRecommendInput(
+                influencerId="inf_tech_A", influencerName="AnnaTheAnalyzer",
+                coreContentDirection=["Tech Reviews", "Software Deep Dives"],
+                overallPersonaAndStyle="Analytical and Detailed",
+                mainAudience="Developers, IT Pros"
+            ),
+            "inf_lifestyle_B": InfluencerProfileForRecommendInput(
+                influencerId="inf_lifestyle_B", influencerName="BennyVlogs",
+                coreContentDirection=["Lifestyle", "Travel", "Food"],
+                overallPersonaAndStyle="Casual and Fun",
+                mainAudience="General Audience, Young Adults"
+            ),
+            "inf_tech_C": InfluencerProfileForRecommendInput(
+                influencerId="inf_tech_C", influencerName="ChrisGadgets",
+                coreContentDirection=["Gadget Unboxing", "Quick Tech Tips", "Gaming Gear"],
+                overallPersonaAndStyle="Enthusiastic and Quick",
+                mainAudience="Gamers, Gadget Lovers"
+            )
+        }
+
+    def test_recommend_influencers_success(
+        self, base_url, long_timeout, tech_product_tags, sample_influencer_profiles_for_reco
+    ):
+        """Test Case 6.1: Successful influencer recommendation with matches."""
+        url = f"{base_url}/api/influencers/recommend"
+        
+        request_payload_model = InfluencerRecommendationRequest(
+            product_tags=tech_product_tags,
+            influencer_profiles_input=sample_influencer_profiles_for_reco,
+            match_threshold=65.0 # Expecting Anna and Chris
+        )
+        payload = request_payload_model.model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=long_timeout)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        api_response = ResponseModel(**response_json)
+        assert api_response.success is True
+        assert api_response.data is not None
+        
+        recommendation_data = InfluencerRecommendationResponseData(**api_response.data)
+        assert recommendation_data.selected_influencers is not None
+        # This assertion depends heavily on your LLM's matching.
+        assert len(recommendation_data.selected_influencers) >= 1, "Expected at least one tech influencer"
+        
+        selected_ids = {inf.influencerId for inf in recommendation_data.selected_influencers}
+        assert "inf_tech_A" in selected_ids or "inf_tech_C" in selected_ids # At least one should match
+        assert "inf_lifestyle_B" not in selected_ids # Should not match well for tech
+        
+        for match in recommendation_data.selected_influencers:
+            assert isinstance(match, MatchResultOutput)
+            assert float(match.match_score.replace('%','')) >= 65.0
+            assert len(match.match_rationale) > 10 # Expect a decent rationale
+
+    def test_recommend_influencers_no_matches(
+        self, base_url, long_timeout, sample_influencer_profiles_for_reco
+    ):
+        """Test Case 6.2: Recommendation when no influencers meet the criteria."""
+        url = f"{base_url}/api/influencers/recommend"
+        
+        # Product tags for a very niche, non-tech product
+        niche_product_tags = ProductTagsForRecommend(
+            coreContentDirection=["Antique Doll Collecting", "Historical Crafts"],
+            overallPersonaAndStyle=["Academic", "Nostalgic"],
+            mainAudience=["Collectors (50+)", "History Buffs"]
+        )
+        request_payload_model = InfluencerRecommendationRequest(
+            product_tags=niche_product_tags,
+            influencer_profiles_input=sample_influencer_profiles_for_reco, # Using tech influencers
+            match_threshold=50.0
+        )
+        payload = request_payload_model.model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=long_timeout)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        api_response = ResponseModel(**response_json)
+        assert api_response.success is True # Process completes, even with no matches
+        assert api_response.data is not None
+        recommendation_data = InfluencerRecommendationResponseData(**api_response.data)
+        assert recommendation_data.selected_influencers is not None
+        assert len(recommendation_data.selected_influencers) == 0
+
+    def test_recommend_influencers_empty_profiles_input(
+        self, base_url, long_timeout, tech_product_tags
+    ):
+        """Test Case 6.3: Recommendation with empty influencer_profiles_input."""
+        url = f"{base_url}/api/influencers/recommend"
+        request_payload_model = InfluencerRecommendationRequest(
+            product_tags=tech_product_tags,
+            influencer_profiles_input={}, # Empty
+            match_threshold=70.0
+        )
+        payload = request_payload_model.model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=long_timeout)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        api_response = ResponseModel(**response_json)
+        assert api_response.success is True # Process completes
+        assert api_response.data is not None
+        recommendation_data = InfluencerRecommendationResponseData(**api_response.data)
+        assert recommendation_data.selected_influencers is not None
+        assert len(recommendation_data.selected_influencers) == 0
+
+    def test_recommend_influencers_validation_error(self, base_url, default_timeout):
+        """Test Case 6.4: Input validation error (e.g., missing product_tags)."""
+        url = f"{base_url}/api/influencers/recommend"
+        payload = {
+            # "product_tags": "is missing",
+            "influencer_profiles_input": {},
+            "match_threshold": 70.0
+        }
+        response = requests.post(url, json=payload, timeout=default_timeout)
+        response_json = print_response_details(response)
+        
+        assert response.status_code == 422
+        assert "detail" in response_json and response_json["detail"][0]["loc"] == ["body", "product_tags"]
+
+
+class TestCreateOutreachEmailsEndpoint:
+    """Tests for /api/outreachs/create"""
+
+    @pytest.fixture
+    def sample_selected_influencers(self) -> List[MatchResultOutput]:
+        return [
+            MatchResultOutput(influencerId="inf_tech_A", influencerName="AnnaTheAnalyzer", match_score="85%", match_rationale="Strong content alignment."),
+            MatchResultOutput(influencerId="inf_tech_C", influencerName="ChrisGadgets", match_score="78%", match_rationale="Good audience fit and style.")
+        ]
+
+    @pytest.fixture
+    def sample_product_info_for_email(self) -> ProductInfoForEmail:
+        return ProductInfoForEmail(
+            ProductName="AI SuperWidget v3",
+            Brand="Innovatech",
+            ProductURL="http://example.com/ai-superwidget-v3",
+            Description="The latest AI-powered widget to boost your productivity and creativity."
+        )
+    
+    @pytest.fixture
+    def sample_product_tags_for_email(self) -> ProductTagsForEmail:
+        return ProductTagsForEmail(
+            FeatureTags=["AI-Powered", "Productivity Tool", "Latest Tech"],
+            AudienceTags=["Professionals", "Content Creators", "Tech Early Adopters"],
+            UsageScenarioTags=["Work Automation", "Creative Projects", "Daily Tasks"]
+        )
+
+    @pytest.fixture
+    def sample_influencer_profiles_for_email(self) -> Dict[str, InfluencerProfileForEmail]:
+        return {
+            "inf_tech_A": InfluencerProfileForEmail(
+                influencerId="inf_tech_A", influencerName="AnnaTheAnalyzer",
+                coreContentDirection=["AI Tools", "Software Reviews", "Productivity Hacks"],
+                overallPersonaAndStyle="Insightful and Expert",
+                mainAudience="Tech Professionals, Software Users"
+            ),
+            "inf_tech_C": InfluencerProfileForEmail(
+                influencerId="inf_tech_C", influencerName="ChrisGadgets",
+                coreContentDirection=["Gadget Unboxings", "Tech News", "AI Gadgets"],
+                overallPersonaAndStyle="Enthusiastic and Engaging",
+                mainAudience="Gadget Lovers, General Tech Consumers"
+            )
+        }
+
+    def test_create_emails_success(
+        self, base_url, long_timeout, sample_selected_influencers, 
+        sample_product_info_for_email, sample_product_tags_for_email, 
+        sample_influencer_profiles_for_email
+    ):
+        """Test Case 7.1: Successful email generation."""
+        url = f"{base_url}/api/outreachs/create"
+        request_payload_model = EmailCreationRequest(
+            selected_influencers=sample_selected_influencers,
+            product_info=sample_product_info_for_email,
+            product_tags=sample_product_tags_for_email,
+            influencer_profiles=sample_influencer_profiles_for_email
+        )
+        payload = request_payload_model.model_dump(mode="json") # Ensures HttpUrl is string
+
+        response = requests.post(url, json=payload, timeout=long_timeout)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        api_response = ResponseModel(**response_json)
+        assert api_response.success is True
+        assert api_response.data is not None
+        
+        email_data = EmailCreationResponseData(**api_response.data)
+        assert email_data.generated_emails is not None
+        assert len(email_data.generated_emails) == len(sample_selected_influencers)
+        
+        for email_output_dict in email_data.generated_emails:
+            email = GeneratedEmailOutput(**email_output_dict) # Validate structure
+            assert email.influencerId in [inf.influencerId for inf in sample_selected_influencers]
+            assert "AI SuperWidget v3" in email.email_subject or "Innovatech" in email.email_subject # LLM dependent
+            assert len(email.email_body) > 50 # Expect a reasonable email body length
+            assert email.influencerName in email.email_body # Personalization check
+
+    def test_create_emails_no_selected_influencers(
+        self, base_url, default_timeout, sample_product_info_for_email, 
+        sample_product_tags_for_email, sample_influencer_profiles_for_email
+    ):
+        """Test Case 7.2: Email creation with no selected influencers."""
+        url = f"{base_url}/api/outreachs/create"
+        request_payload_model = EmailCreationRequest(
+            selected_influencers=[], # Empty list
+            product_info=sample_product_info_for_email,
+            product_tags=sample_product_tags_for_email,
+            influencer_profiles=sample_influencer_profiles_for_email # Can be empty or not, shouldn't matter
+        )
+        payload = request_payload_model.model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=default_timeout) # Should be fast
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        api_response = ResponseModel(**response_json)
+        assert api_response.success is True # Process completes, just no emails
+        assert api_response.data is not None
+        email_data = EmailCreationResponseData(**api_response.data)
+        assert email_data.generated_emails is not None
+        assert len(email_data.generated_emails) == 0
+
+    def test_create_emails_profile_missing_for_selected_influencer(
+        self, base_url, long_timeout, sample_selected_influencers,
+        sample_product_info_for_email, sample_product_tags_for_email
+        # sample_influencer_profiles_for_email # Intentionally not passing all profiles
+    ):
+        """Test Case 7.3: Email creation when a selected influencer's profile is missing."""
+        url = f"{base_url}/api/outreachs/create"
+        
+        # Only provide profile for one of the selected influencers
+        limited_profiles = {
+            "inf_tech_A": InfluencerProfileForEmail(
+                influencerId="inf_tech_A", influencerName="AnnaTheAnalyzer",
+                coreContentDirection=["AI Tools"], overallPersonaAndStyle="Expert", mainAudience="Tech Pros"
+            )
+            # Profile for "inf_tech_C" is missing
+        }
+        
+        request_payload_model = EmailCreationRequest(
+            selected_influencers=sample_selected_influencers, # Contains inf_tech_A and inf_tech_C
+            product_info=sample_product_info_for_email,
+            product_tags=sample_product_tags_for_email,
+            influencer_profiles=limited_profiles 
+        )
+        payload = request_payload_model.model_dump(mode="json")
+
+        response = requests.post(url, json=payload, timeout=long_timeout)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 200
+        api_response = ResponseModel(**response_json)
+        # API returns success=False if there are errors during generation
+        assert api_response.success is False 
+        assert "Email generation completed with some errors." in api_response.message
+        assert api_response.errors is not None
+        assert any("Profile missing for selected influencer inf_tech_C" in error for error in api_response.errors)
+        
+        assert api_response.data is not None
+        email_data = EmailCreationResponseData(**api_response.data)
+        assert email_data.generated_emails is not None
+        assert len(email_data.generated_emails) == 1 # Only for inf_tech_A
+        assert email_data.generated_emails[0].influencerId == "inf_tech_A"
+
+    def test_create_emails_validation_error(self, base_url, default_timeout):
+        """Test Case 7.4: Input validation error (e.g., missing selected_influencers)."""
+        url = f"{base_url}/api/outreachs/create"
+        payload = {
+            # "selected_influencers": "is missing",
+            "product_info": ProductInfoForEmail(ProductName="Test").model_dump(mode="json"),
+            "influencer_profiles": {}
+        }
+        response = requests.post(url, json=payload, timeout=default_timeout)
+        response_json = print_response_details(response)
+
+        assert response.status_code == 422
+        assert "detail" in response_json and response_json["detail"][0]["loc"] == ["body", "selected_influencers"]

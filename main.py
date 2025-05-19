@@ -123,7 +123,22 @@ class InfluencerRecommendationResponseData(BaseModel):
     # match_results: Optional[List[MatchResult]] = None # Raw match results before filtering
     selected_influencers: Optional[List[MatchResult]] = None # Filtered results
 
+class InfluencerProfileOutput(BaseModel): # More specific name for the output profile
+    # Fields from your influencer_analysis_Prompt output JSON
+    influencerId: str # Should be populated by your graph logic if not directly from LLM
+    influencerName: str # Should be populated by your graph logic if not directly from LLM
+    coreContentDirection: List[str] = Field(default_factory=list)
+    overallPersonaAndStyle: Optional[str] = None
+    mainAudience: Optional[str] = None
+    commercialDegree: Optional[str] = None
+    crossPlatformConsist: Optional[str] = None
+    potentialBrandType: List[str] = Field(default_factory=list)
+    influencerEval: Optional[str] = None
+    goodsCarryRating: Optional[str] = None
+    # Add any other fields your InfluencerProfile Pydantic model (output of generate_influencer_profiles_node) has
 
+class InfluencerAnalysisResponseData(BaseModel):
+    influencer_profiles: Optional[Dict[str, InfluencerProfileOutput]] = None # Key: influencerId
 
 # --- Full Marketing Workflow API Models ---
 class MarketingWorkflowRequest(BaseModel):

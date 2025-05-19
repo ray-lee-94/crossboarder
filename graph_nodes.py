@@ -11,7 +11,7 @@ from langchain_openai import AzureChatOpenAI
 
 from graph_state import ( BaseModel, ProductAnalysisState,
     MarketingWorkFlowState, IntentAnalysisState, EmailGenerationState,
-    PlatformContentData, PlatformAnalysisResult, InfluencerProfile, ProductTags, MatchResult, GeneratedEmail
+    PlatformAnalysisResult, InfluencerProfile, ProductTags, MatchResult, GeneratedEmail
 )
 from prompts import (
     social_media_analyst_Prompt, product_metadata_Prompt, influencer_analysis_Prompt,
