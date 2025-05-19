@@ -7,12 +7,11 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Query, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
-from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel, HttpUrl, Field
 
 # Project-specific imports
 from graph_nodes import workflow_app, intent_app, generate_emails_app, influencer_app,  recommend_influencer_app# Compiled LangGraph apps
-from graph_state import MarketingWorkFlowState, IntentAnalysisState, PlatformContentData, GeneratedEmail, ProductTags, EmailGenerationState, MatchResult, InfluencerProfile
+from graph_state import MarketingWorkFlowState, IntentAnalysisState, PlatformContentData, GeneratedEmail, ProductTags, EmailGenerationState, MatchResult, InfluencerProfile,InfluencerRecommendationRequest
 from product_crawl import run_crawl_task, jobs as crawl_jobs # Crawler task and job store
 
 
@@ -114,10 +113,9 @@ class InfluencerInputForWorkflow(BaseModel):
     influencerId: str
     influencerName: str
     platforms: Dict[str, List[InfluencerPlatformContentInput]] = Field(default_factory=dict, description="Platform name to list of content data")
-
-
 class InfluencerAnalysisRequest(BaseModel):
-    influencers_to_analyze: List[InfluencerPlatformContentInput]
+    influencer_data: List[InfluencerInputForWorkflow]
+
 
 class InfluencerRecommendationResponseData(BaseModel):
     # match_results: Optional[List[MatchResult]] = None # Raw match results before filtering
@@ -125,8 +123,8 @@ class InfluencerRecommendationResponseData(BaseModel):
 
 class InfluencerProfileOutput(BaseModel): # More specific name for the output profile
     # Fields from your influencer_analysis_Prompt output JSON
-    influencerId: str # Should be populated by your graph logic if not directly from LLM
-    influencerName: str # Should be populated by your graph logic if not directly from LLM
+    influencerId: Optional[str]= None # Should be populated by your graph logic if not directly from LLM
+    influencerName: Optional[str]= None # Should be populated by your graph logic if not directly from LLM
     coreContentDirection: List[str] = Field(default_factory=list)
     overallPersonaAndStyle: Optional[str] = None
     mainAudience: Optional[str] = None
@@ -351,14 +349,15 @@ async def analyze_product_standalone(request_data: ProductInputForAnalysis):
         raise HTTPException(status_code=500, detail=f"Error during product analysis: {str(e)}")
 
 
-influencer_analysis_router.post("/analyze-details", response_model= ResponseModel)
+@influencer_analysis_router.post("/analyze", response_model= ResponseModel)
 async def analyze_influencer_details(request_data: InfluencerAnalysisRequest):
     """
     Analyzes influencer platforms and generates detailed profiles.
     """
     # Convert Pydantic request models to simple dicts for LangGraph state
+    print("Received influencer analysis request:", request_data)
     influencer_data_for_state = []
-    for inf_input in request_data.influencers_input_data:
+    for inf_input in request_data.influencer_data:
         platforms_dict_for_state = {}
         for platform_name, content_list in inf_input.platforms.items():
             platforms_dict_for_state[platform_name] = [content.model_dump(mode="json") for content in content_list]
@@ -369,14 +368,14 @@ async def analyze_influencer_details(request_data: InfluencerAnalysisRequest):
             "platforms": platforms_dict_for_state
             # Any other fields from InfluencerPlatformInput that influencer_data in state expects
         })
-
+    
     # Prepare the initial state for the influencer_app graph
     initial_state_dict: MarketingWorkFlowState = {
         "influencer_data": influencer_data_for_state,
         "error_messages": [],
         # Initialize other MarketingWorkFlowState fields to None or default if not used by this app
         "product_info": None, "product_tags": None, "platform_analysis": None,
-        "influencer_profiles": None, "match_results": None, "match_threshold": None,
+        "influencer_profiles": None, "match_results": None, "match_threshold": 0,
         "selected_influencers": None, "generated_emails": None,
         "filtered_influencer_data": None # if you added this
     }
@@ -392,7 +391,8 @@ async def analyze_influencer_details(request_data: InfluencerAnalysisRequest):
         response_data = None
         if profiles_output:
              # No need to model_dump here if InfluencerAnalysisResponseData expects Pydantic models
-            response_data = InfluencerRecommendationResponseData(influencer_profiles=profiles_output)
+            print("Influencer profiles output:", profiles_output)
+            response_data =InfluencerAnalysisResponseData(influencer_profiles=profiles_output)
 
 
         if errors and not profiles_output: # Only errors
@@ -412,7 +412,7 @@ async def analyze_influencer_details(request_data: InfluencerAnalysisRequest):
 
 
 @recommend_influencer_router.post("", response_model=ResponseModel)
-async def recommend_influencers_for_product(request_data: InfluencerPlatformContentInput):
+async def recommend_influencers_for_product(request_data: InfluencerRecommendationRequest):
     """
     Recommends influencers for a product based on matching and filtering.
     """
@@ -422,20 +422,11 @@ async def recommend_influencers_for_product(request_data: InfluencerPlatformCont
         "influencer_profiles": request_data.influencer_profiles_input, # Pass the dict of Pydantic models
         "match_threshold": request_data.match_threshold,
         "error_messages": [],
-        # Initialize other MarketingWorkFlowState fields to None or default
         "influencer_data": [], # If node needs original influencer list for names, pass here
         "platform_analysis": None, "match_results": None, 
         "selected_influencers": None, "generated_emails": None,
         "filtered_influencer_data": None
     }
-    # If `match_influencers_node` needs `state.influencer_data` to map IDs to names for the prompt,
-    # you'll need to ensure this is populated correctly.
-    # A common pattern is that InfluencerProfile itself contains influencerId and influencerName.
-    # The provided `generate_influencer_profiles_node` stores profiles keyed by ID.
-    # `match_influencers_node` tries to get names from `state.influencer_data`.
-    # So, if your `influencer_profiles_input` doesn't have names reliably, you'd need to pass
-    # a corresponding `influencer_data` list.
-    # For simplicity here, assuming InfluencerProfile in the request has names, or match_node handles it.
 
     try:
         # final_state_dict: MarketingWorkFlowState = await match_influencer_app.ainvoke(initial_state_dict)
@@ -564,11 +555,13 @@ async def create_outreach_emails(request_data: EmailCreationRequest):
     )
 
     try:
-        # final_state_obj: EmailGenerationState = await generate_emails_app.ainvoke(initial_state_obj)
-        final_state_obj: EmailGenerationState = generate_emails_app.invoke(initial_state_obj)
+        final_state_obj: EmailGenerationState= generate_emails_app.invoke(initial_state_obj)
 
-        final_errors = final_state_obj.error_messages
-        generated_email_objects = final_state_obj.generated_emails # List[GeneratedEmail]
+        # final_errors = final_state_obj.error_messages
+        print("################### ",final_state_obj)
+        
+        final_errors= final_state_obj["error_messages"]
+        generated_email_objects = final_state_obj["generated_emails"]
 
         # Convert list of Pydantic GeneratedEmail objects to list of dicts for response
         emails_for_response = []

@@ -46,22 +46,16 @@ class ProductTags(BaseModel):
     FeatureTags: List[str] = Field(default_factory=list)
     AudienceTags: List[str] = Field(default_factory=list)
     UsageScenarioTags: List[str] = Field(default_factory=list)
-    coreContentDirection: List[str] = Field(default_factory=list, description="基于产品特性推断的，适合展示该产品的内容创作方向") # New
+    coreContentDirection: Optional[List[str]] = Field(default_factory=list, description="基于产品特性推断的，适合展示该产品的内容创作方向") # New
     overallPersonaAndStyle: Optional[str] = Field(None, description="基于产品特性和定位，拟人化的产品调性和风格") # New (string, as per prompt example) - or List[str] if multiple styles are possible
     mainAudience: Optional[str] = Field(None, description="对产品核心目标用户的画像描述") # New (string, as per prompt example)
 
 
 class InfluencerRecommendationRequest(BaseModel):
-    product_info: Optional[Dict[str, Any]] = None # Or ProductInfoForMatching if you have a strict model
+    product_info: Dict[str, Any] # Product information as a dictionary
     product_tags: ProductTags # Product tags are essential for matching
-    # influencer_profiles are the input for matching.
-    # The match_influencers_node expects state.influencer_profiles which is Dict[str, InfluencerProfile]
     influencer_profiles_input: Dict[str, InfluencerProfile] 
     match_threshold: Optional[float] = Field(75.0, ge=0, le=100) # Default 75%, range 0-100
-    # If match_influencers_node or filter_matches_node also needs the raw influencer_data for name mapping,
-    # you might need to pass it or ensure InfluencerProfile contains ID and Name.
-    # For now, assuming InfluencerProfile in the request already has Id and Name.
-    # And that match_influencers_node can get names if needed from this input or its own logic.
 
 class MatchResult(BaseModel):
     # Matches the output structure of influencer_match_Prompt
@@ -80,8 +74,8 @@ class GeneratedEmail(BaseModel):
 # --- Main WorkFlow State ---
 class MarketingWorkFlowState(BaseModel):
     # Input Data (Should be provided when invoking the graph)
-    product_info: Dict[str, Any] = Field(..., description="Detailed product information as a dictionary.")
-    influencer_data: List[Dict[str, Any]] = Field(..., description="List of influencer data. Each dict should contain 'influencerId', 'influencerName', and 'platforms'. Platforms is Dict[str, List[PlatformContentData]].")
+    product_info: Optional[Dict[str, Any]] = Field(..., description="Detailed product information as a dictionary.")
+    influencer_data: Optional[List[Dict[str, Any]]] = Field(..., description="List of influencer data. Each dict should contain 'influencerId', 'influencerName', and 'platforms'. Platforms is Dict[str, List[PlatformContentData]].")
 
     # Intermediate & Output Data (Managed by the graph)
     product_tags: Optional[ProductTags] = None
@@ -93,8 +87,8 @@ class MarketingWorkFlowState(BaseModel):
     error_messages: List[str] = Field(default_factory=list) # To collect error messages
     match_threshold: float = Field(default=75.0, description="Match score threshold (e.g., 75.0 for 75%)") # API request uses 75.0, state uses 0.8. Be consistent. Let's use 0-100 scale.
 
-    class Config:
-        arbitrary_types_allowed = True # If you use non-Pydantic types directly in state
+    # class Config:
+    #     arbitrary_types_allowed = True # If you use non-Pydantic types directly in state
 
 
 
