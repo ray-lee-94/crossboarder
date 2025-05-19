@@ -11,8 +11,8 @@ from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel, HttpUrl, Field
 
 # Project-specific imports
-from graph_nodes import workflow_app, intent_app # Compiled LangGraph apps
-from graph_state import MarketingWorkFlowState, IntentAnalysisState, PlatformContentData, GeneratedEmail, ProductTags # LangGraph states
+from graph_nodes import workflow_app, intent_app, generate_emails_app, influencer_app,  recommend_influencer_app# Compiled LangGraph apps
+from graph_state import MarketingWorkFlowState, IntentAnalysisState, PlatformContentData, GeneratedEmail, ProductTags, EmailGenerationState, MatchResult, InfluencerProfile
 from product_crawl import run_crawl_task, jobs as crawl_jobs # Crawler task and job store
 
 
@@ -116,6 +116,15 @@ class InfluencerInputForWorkflow(BaseModel):
     platforms: Dict[str, List[InfluencerPlatformContentInput]] = Field(default_factory=dict, description="Platform name to list of content data")
 
 
+class InfluencerAnalysisRequest(BaseModel):
+    influencers_to_analyze: List[InfluencerPlatformContentInput]
+
+class InfluencerRecommendationResponseData(BaseModel):
+    # match_results: Optional[List[MatchResult]] = None # Raw match results before filtering
+    selected_influencers: Optional[List[MatchResult]] = None # Filtered results
+
+
+
 # --- Full Marketing Workflow API Models ---
 class MarketingWorkflowRequest(BaseModel):
     product_info: ProductInputForAnalysis # Using the same detailed product input as for standalone analysis
@@ -157,6 +166,15 @@ class EmailIntentOutput(BaseModel):
     is_urgent: bool
     notification_summary: str
     # Add any other fields your email_intent_Prompt returns
+
+
+
+class EmailCreationRequest(BaseModel):
+    selected_influencers: List[MatchResult]
+    product_info: Dict[str, Any] # Or a specific Pydantic model like ProductInfoModel
+    product_tags: Optional[ProductTags] = None
+    influencer_profiles: Dict[str, InfluencerProfile] # Key is influencerId
+
 
 app = FastAPI(
     title="Crossborder LLM API",
@@ -200,8 +218,12 @@ async def redoc_html():
 health_router = APIRouter(tags=["Health"])
 product_crawl_router = APIRouter(prefix="/api/products/crawl", tags=["Product Crawl"])
 product_analysis_router = APIRouter(prefix="/api/products", tags=["Product Analysis"]) # For standalone analysis
+influencer_analysis_router= APIRouter(prefix="/api/influencers", tags=["Influencer Analysis"])
+recommend_influencer_router= APIRouter(prefix="/api/influencers/recommend", tags=["Recommend Influencers"])
+
 marketing_workflow_router = APIRouter(prefix="/api/marketing", tags=["Marketing Workflow"])
 email_intent_router = APIRouter(prefix="/api/outreachs/intent", tags=["Email Intent"])
+email_create_router = APIRouter(prefix="/api/outreachs/create", tags=["Email Creation"])
 
 
 # --- Health Check Endpoints ---
@@ -314,6 +336,118 @@ async def analyze_product_standalone(request_data: ProductInputForAnalysis):
         raise HTTPException(status_code=500, detail=f"Error during product analysis: {str(e)}")
 
 
+influencer_analysis_router.post("/analyze-details", response_model= ResponseModel)
+async def analyze_influencer_details(request_data: InfluencerAnalysisRequest):
+    """
+    Analyzes influencer platforms and generates detailed profiles.
+    """
+    # Convert Pydantic request models to simple dicts for LangGraph state
+    influencer_data_for_state = []
+    for inf_input in request_data.influencers_input_data:
+        platforms_dict_for_state = {}
+        for platform_name, content_list in inf_input.platforms.items():
+            platforms_dict_for_state[platform_name] = [content.model_dump(mode="json") for content in content_list]
+        
+        influencer_data_for_state.append({
+            "influencerId": inf_input.influencerId,
+            "influencerName": inf_input.influencerName,
+            "platforms": platforms_dict_for_state
+            # Any other fields from InfluencerPlatformInput that influencer_data in state expects
+        })
+
+    # Prepare the initial state for the influencer_app graph
+    initial_state_dict: MarketingWorkFlowState = {
+        "influencer_data": influencer_data_for_state,
+        "error_messages": [],
+        # Initialize other MarketingWorkFlowState fields to None or default if not used by this app
+        "product_info": None, "product_tags": None, "platform_analysis": None,
+        "influencer_profiles": None, "match_results": None, "match_threshold": None,
+        "selected_influencers": None, "generated_emails": None,
+        "filtered_influencer_data": None # if you added this
+    }
+
+    try:
+        # final_state_dict: MarketingWorkFlowState = await influencer_app.ainvoke(initial_state_dict)
+        final_state_dict: MarketingWorkFlowState = influencer_app.invoke(initial_state_dict)
+        
+        errors = final_state_dict.get("error_messages", [])
+        # influencer_profiles is Dict[str, InfluencerProfile Pydantic model]
+        profiles_output = final_state_dict.get("influencer_profiles") 
+
+        response_data = None
+        if profiles_output:
+             # No need to model_dump here if InfluencerAnalysisResponseData expects Pydantic models
+            response_data = InfluencerRecommendationResponseData(influencer_profiles=profiles_output)
+
+
+        if errors and not profiles_output: # Only errors
+            return ResponseModel(success=False, message="Influencer analysis failed.", data=response_data, errors=errors)
+        
+        return ResponseModel(
+            success=True if not errors else False, # Success if profiles are generated, even with some errors
+            message="Influencer analysis completed." if not errors else "Influencer analysis completed with some errors.",
+            data=response_data,
+            errors=errors if errors else None
+        )
+
+    except Exception as e:
+        print(f"API Error during influencer analysis: {traceback.format_exc()}")
+        return ResponseModel(success=False, message=f"Internal server error: {str(e)}", errors=[str(e)])
+
+
+
+@recommend_influencer_router.post("", response_model=ResponseModel)
+async def recommend_influencers_for_product(request_data: InfluencerPlatformContentInput):
+    """
+    Recommends influencers for a product based on matching and filtering.
+    """
+    initial_state_dict: MarketingWorkFlowState = {
+        "product_info": request_data.product_info,
+        "product_tags": request_data.product_tags, # Pass the Pydantic model directly
+        "influencer_profiles": request_data.influencer_profiles_input, # Pass the dict of Pydantic models
+        "match_threshold": request_data.match_threshold,
+        "error_messages": [],
+        # Initialize other MarketingWorkFlowState fields to None or default
+        "influencer_data": [], # If node needs original influencer list for names, pass here
+        "platform_analysis": None, "match_results": None, 
+        "selected_influencers": None, "generated_emails": None,
+        "filtered_influencer_data": None
+    }
+    # If `match_influencers_node` needs `state.influencer_data` to map IDs to names for the prompt,
+    # you'll need to ensure this is populated correctly.
+    # A common pattern is that InfluencerProfile itself contains influencerId and influencerName.
+    # The provided `generate_influencer_profiles_node` stores profiles keyed by ID.
+    # `match_influencers_node` tries to get names from `state.influencer_data`.
+    # So, if your `influencer_profiles_input` doesn't have names reliably, you'd need to pass
+    # a corresponding `influencer_data` list.
+    # For simplicity here, assuming InfluencerProfile in the request has names, or match_node handles it.
+
+    try:
+        # final_state_dict: MarketingWorkFlowState = await match_influencer_app.ainvoke(initial_state_dict)
+        final_state_dict: MarketingWorkFlowState = recommend_influencer_app.invoke(initial_state_dict)
+        
+        errors = final_state_dict.get("error_messages", [])
+        # selected_influencers is List[MatchResult Pydantic models]
+        selected_output = final_state_dict.get("selected_influencers") 
+
+        response_data = None
+        if selected_output is not None: # Could be an empty list if no one meets threshold
+            response_data = InfluencerRecommendationResponseData(selected_influencers=selected_output)
+
+        if errors and selected_output is None: # Only errors and no selection result
+             return ResponseModel(success=False, message="Influencer recommendation failed.", data=response_data, errors=errors)
+
+        return ResponseModel(
+            success=True if not errors else False,
+            message="Influencer recommendation process completed." if not errors else "Influencer recommendation completed with some errors.",
+            data=response_data,
+            errors=errors if errors else None
+        )
+
+    except Exception as e:
+        print(f"API Error during influencer recommendation: {traceback.format_exc()}")
+        return ResponseModel(success=False, message=f"Internal server error: {str(e)}", errors=[str(e)])
+
 # --- Full Marketing Workflow Endpoint ---
 @marketing_workflow_router.post("/run", response_model=ResponseModel)
 async def run_marketing_workflow(request_data: MarketingWorkflowRequest):
@@ -398,12 +532,68 @@ async def analyze_email_intent(request_data: EmailIntentRequest):
         print(f"API Error during email intent analysis: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Error during email intent analysis: {str(e)}")
 
+
+
+@email_create_router.post("", response_model= ResponseModel) # Using your generic ResponseModel is also fine
+async def create_outreach_emails(request_data: EmailCreationRequest):
+    """
+    Generates outreach emails for selected influencers based on product and profile data.
+    """
+    # Create an instance of EmailGenerationState Pydantic model
+    initial_state_obj = EmailGenerationState(
+        selected_influencers=request_data.selected_influencers,
+        product_info=request_data.product_info,
+        product_tags=request_data.product_tags,
+        influencer_profiles=request_data.influencer_profiles,
+        error_messages=[] # Initialize with empty list
+    )
+
+    try:
+        # final_state_obj: EmailGenerationState = await generate_emails_app.ainvoke(initial_state_obj)
+        final_state_obj: EmailGenerationState = generate_emails_app.invoke(initial_state_obj)
+
+        final_errors = final_state_obj.error_messages
+        generated_email_objects = final_state_obj.generated_emails # List[GeneratedEmail]
+
+        # Convert list of Pydantic GeneratedEmail objects to list of dicts for response
+        emails_for_response = []
+        if generated_email_objects:
+            emails_for_response = [email.model_dump(mode="json") for email in generated_email_objects]
+
+        if final_errors and not emails_for_response: # Only errors, no emails
+            return ResponseModel(
+                success=False,
+                message="Email generation failed with errors.",
+                data=None, # Or {"generated_emails": []}
+                errors=final_errors
+            )
+        
+        return ResponseModel(
+            success=True if not final_errors else False, # Success if any email is generated, even with some errors
+            message="Email generation process completed." if not final_errors else "Email generation completed with some errors.",
+            data={"generated_emails": emails_for_response},
+            errors=final_errors if final_errors else None
+        )
+
+    except Exception as e:
+        print(f"API Error during email generation: {traceback.format_exc()}")
+        # Ensure StandardResponse can handle this structure for errors
+        return ResponseModel(
+            success=False, 
+            message=f"Internal server error during email generation: {str(e)}", 
+            errors=[str(e)],
+            data=None
+        )
+
 # --- Include Routers ---
 app.include_router(health_router)
 app.include_router(product_crawl_router)
 app.include_router(product_analysis_router)
+app.include_router(influencer_analysis_router)
+app.include_router(recommend_influencer_router)
 app.include_router(marketing_workflow_router)
 app.include_router(email_intent_router)
+app.include_router(email_create_router)
 
 
 # --- Root Endpoint ---

@@ -51,6 +51,18 @@ class ProductTags(BaseModel):
     mainAudience: Optional[str] = Field(None, description="对产品核心目标用户的画像描述") # New (string, as per prompt example)
 
 
+class InfluencerRecommendationRequest(BaseModel):
+    product_info: Optional[Dict[str, Any]] = None # Or ProductInfoForMatching if you have a strict model
+    product_tags: ProductTags # Product tags are essential for matching
+    # influencer_profiles are the input for matching.
+    # The match_influencers_node expects state.influencer_profiles which is Dict[str, InfluencerProfile]
+    influencer_profiles_input: Dict[str, InfluencerProfile] 
+    match_threshold: Optional[float] = Field(75.0, ge=0, le=100) # Default 75%, range 0-100
+    # If match_influencers_node or filter_matches_node also needs the raw influencer_data for name mapping,
+    # you might need to pass it or ensure InfluencerProfile contains ID and Name.
+    # For now, assuming InfluencerProfile in the request already has Id and Name.
+    # And that match_influencers_node can get names if needed from this input or its own logic.
+
 class MatchResult(BaseModel):
     # Matches the output structure of influencer_match_Prompt
     influencerId: str
@@ -98,3 +110,17 @@ class IntentAnalysisState(BaseModel):
     email_body: str
     analysis_result: Optional[Dict[str, Any]] = None # Structure based on email_intent_Prompt output
     error_message: Optional[str] = None
+
+
+class EmailGenerationState(BaseModel): # Using Pydantic BaseModel for state
+    # Inputs required by generate_emails_node
+    selected_influencers: List[MatchResult] # List of influencers to generate emails for
+    product_info: Dict[str, Any] # Product details as a dictionary
+    product_tags: Optional[ProductTags] = None # Product tags (can be optional if email gen can work without)
+    influencer_profiles: Dict[str, InfluencerProfile] # Profiles map, key is influencerId
+    
+    # Output of the node
+    generated_emails: Optional[List[GeneratedEmail]] = None
+    
+    # Common field for errors
+    error_messages: List[str] = Field(default_factory=list)

@@ -10,7 +10,7 @@ from langchain_openai import AzureChatOpenAI
 
 
 from graph_state import ( BaseModel, ProductAnalysisState,
-    MarketingWorkFlowState, IntentAnalysisState,
+    MarketingWorkFlowState, IntentAnalysisState, EmailGenerationState,
     PlatformContentData, PlatformAnalysisResult, InfluencerProfile, ProductTags, MatchResult, GeneratedEmail
 )
 from prompts import (
@@ -306,29 +306,52 @@ def filter_matches_node(state: MarketingWorkFlowState) -> dict:
     print(f"LG Node:   Selected {len(selected)} influencers meeting threshold >= {threshold}%.")
     return {"selected_influencers": selected, "error_messages": errors}
 
-def generate_emails_node(state: MarketingWorkFlowState) -> dict:
-    print("LG Node: --- Generating Outreach Emails ---")
-    selected_influencers_list = state.selected_influencers # List[MatchResult]
-    product_info_dict = state.product_info
+def generate_emails_node(state: EmailGenerationState) -> Dict[str, Any]: # Node returns a dict to update Pydantic state
+    print("LG Node: --- Generating Outreach Emails (Pydantic State) ---")
+    
+    # Access attributes from Pydantic state object
+    selected_influencers_list = state.selected_influencers
+    product_info_dict = state.product_info # Already a dict as per EmailGenerationState
     product_tags_obj = state.product_tags
-    influencer_profiles_map = state.influencer_profiles # Dict[str, InfluencerProfile]
-    errors = list(state.error_messages)
+    influencer_profiles_map = state.influencer_profiles
+    
+    # errors = list(state.error_messages) # No need to copy if we append to the original (Pydantic handles updates)
+    # Instead, collect new errors and return them
+    current_node_errors: List[str] = []
     generated_emails_list: List[GeneratedEmail] = []
 
     if not selected_influencers_list:
         print("LG Node:   No selected influencers to generate emails for.")
-        return {"generated_emails": [], "error_messages": errors}
+        # Return the current state of errors and empty emails
+        return {"generated_emails": [], "error_messages": state.error_messages + current_node_errors}
 
-    email_prompt = ChatPromptTemplate.from_template(collab_email_Prompt)
-    # The prompt output should be a dict for a single email.
-    # JsonOutputParser can try to parse to GeneratedEmail if the LLM output keys match.
-    # However, GeneratedEmail in graph_state.py includes influencerId and Name, which the prompt might not return.
-    # Let's parse to a dict first, then construct GeneratedEmail.
-    email_chain = email_prompt | llm | JsonOutputParser()
+    if not product_info_dict:
+        current_node_errors.append("Email generation: Product info is missing.")
+        print("LG Node:   Error: Product info is missing.")
+        return {"generated_emails": [], "error_messages": state.error_messages + current_node_errors}
 
-    product_input_for_prompt = product_info_dict.copy()
-    if product_tags_obj:
-        product_input_for_prompt.update(product_tags_obj.model_dump())
+    if not influencer_profiles_map:
+        current_node_errors.append("Email generation: Influencer profiles map is missing.")
+        print("LG Node:   Error: Influencer profiles map is missing.")
+        return {"generated_emails": [], "error_messages": state.error_messages + current_node_errors}
+
+
+    email_prompt_template = ChatPromptTemplate.from_template(collab_email_Prompt)
+    email_chain = email_prompt_template | llm | JsonOutputParser() # Expects dict output from LLM
+
+    # Prepare product input for prompt (should be JSON string)
+    product_input_for_llm_dict = product_info_dict.copy() # Start with base product info
+    if product_tags_obj: # product_tags_obj is already a Pydantic model or None
+        product_input_for_llm_dict.update(product_tags_obj.model_dump(mode="json"))
+    
+    try:
+        product_info_json_str = json.dumps(product_input_for_llm_dict, ensure_ascii=False, indent=2)
+    except Exception as e:
+        err_msg = f"Failed to serialize product_info for email prompt: {e}"
+        print(f"LG Node:   {err_msg}\n{traceback.format_exc()}")
+        current_node_errors.append(err_msg)
+        return {"generated_emails": [], "error_messages": state.error_messages + current_node_errors}
+
 
     for influencer_match_obj in selected_influencers_list:
         influencer_id = influencer_match_obj.influencerId
@@ -336,43 +359,131 @@ def generate_emails_node(state: MarketingWorkFlowState) -> dict:
         print(f"LG Node:   Generating email for: {influencer_name} ({influencer_id})")
 
         profile_obj = influencer_profiles_map.get(influencer_id)
-        if not profile_obj:
-            print(f"LG Node:     Warning: Profile not found for {influencer_name}. Cannot generate email.")
-            errors.append(f"Profile missing for selected influencer {influencer_name}.")
+        if not profile_obj: # profile_obj is an InfluencerProfile Pydantic model or None
+            msg = f"Profile missing for selected influencer {influencer_name} ({influencer_id}). Cannot generate email."
+            print(f"LG Node:     Warning: {msg}")
+            current_node_errors.append(msg)
             continue
         
-        profile_dict_for_prompt = profile_obj.model_dump()
-        # Ensure prompt has access to name if it uses {influencerName} in the template for personalization
-        profile_dict_for_prompt['influencerName'] = influencer_name 
-        profile_dict_for_prompt['influencerId'] = influencer_id
+        # Prepare influencer profile input for prompt (should be JSON string)
+        # The collab_email_Prompt expects 'influencer_profile' to be a JSON string
+        # containing influencerId and influencerName among other profile details.
+        profile_dict_for_llm = profile_obj.model_dump(mode="json")
+        # Ensure influencerId and influencerName are present, collab_email_Prompt might use them.
+        profile_dict_for_llm['influencerId'] = influencer_id 
+        profile_dict_for_llm['influencerName'] = influencer_name
+        
+        try:
+            influencer_profile_json_str = json.dumps(profile_dict_for_llm, ensure_ascii=False, indent=2)
+        except Exception as e:
+            err_msg = f"Failed to serialize profile for {influencer_name} for email prompt: {e}"
+            print(f"LG Node:     {err_msg}\n{traceback.format_exc()}")
+            current_node_errors.append(err_msg)
+            continue
 
         try:
-            input_dict = {
-                "product_info": json.dumps(product_input_for_prompt, ensure_ascii=False, indent=2),
-                "influencer_profile": json.dumps(profile_dict_for_prompt, ensure_ascii=False, indent=2)
+            llm_input_dict = {
+                "product_info": product_info_json_str,
+                "influencer_profile": influencer_profile_json_str
             }
-            # LLM returns a dict like {"email_subject": "...", "email_body": "..."}
-            parsed_email_dict = email_chain.invoke(input_dict)
+            
+            parsed_email_content_dict = email_chain.invoke(llm_input_dict) # Returns a dict
 
-            if parsed_email_dict and isinstance(parsed_email_dict, dict) and \
-               "email_subject" in parsed_email_dict and "email_body" in parsed_email_dict:
+            if parsed_email_content_dict and isinstance(parsed_email_content_dict, dict) and \
+               "email_subject" in parsed_email_content_dict and "email_body" in parsed_email_content_dict:
                 print(f"LG Node:     Email generated successfully for {influencer_name}.")
-                # Construct GeneratedEmail Pydantic model
                 email_obj = GeneratedEmail(
                     influencerId=influencer_id,
                     influencerName=influencer_name,
-                    email_subject=parsed_email_dict["email_subject"],
-                    email_body=parsed_email_dict["email_body"]
+                    email_subject=parsed_email_content_dict["email_subject"],
+                    email_body=parsed_email_content_dict["email_body"]
                 )
                 generated_emails_list.append(email_obj)
             else:
-                print(f"LG Node:     Email generation failed or invalid format for {influencer_name}.")
-                errors.append(f"Email generation failed for {influencer_name}.")
-        except Exception as e:
-            print(f"LG Node:     Error generating email for {influencer_name}: {e}")
-            errors.append(f"Email generation error for {influencer_name}: {e}")
+                err_msg = f"Email generation for {influencer_name} returned invalid/incomplete dict."
+                if parsed_email_content_dict:
+                    err_msg += f" Got: {str(parsed_email_content_dict)[:200]}"
+                print(f"LG Node:     {err_msg}")
+                current_node_errors.append(err_msg)
+        except Exception as e: # Catches LLM errors, OutputParserException, etc.
+            err_msg = f"Error generating email for {influencer_name}: {str(e)}"
+            if hasattr(e, 'llm_output') and e.llm_output:
+                 err_msg += f". LLM Output: '{e.llm_output[:200]}...'"
+            print(f"LG Node:     {err_msg}\n{traceback.format_exc()}")
+            current_node_errors.append(err_msg)
     
-    return {"generated_emails": generated_emails_list, "error_messages": errors}
+    # Return all generated emails and any new errors, appended to existing errors
+    return {
+        "generated_emails": generated_emails_list, 
+        "error_messages": state.error_messages + current_node_errors
+    }
+# def generate_emails_node(state: EmailGenerationState) -> dict:
+#     print("LG Node: --- Generating Outreach Emails ---")
+#     selected_influencers_list = state.selected_influencers # List[MatchResult]
+#     product_info_dict = state.product_info
+#     product_tags_obj = state.product_tags
+#     influencer_profiles_map = state.influencer_profiles # Dict[str, InfluencerProfile]
+#     errors = list(state.error_messages)
+#     generated_emails_list: List[GeneratedEmail] = []
+
+#     if not selected_influencers_list:
+#         print("LG Node:   No selected influencers to generate emails for.")
+#         return {"generated_emails": [], "error_messages": errors}
+
+#     email_prompt = ChatPromptTemplate.from_template(collab_email_Prompt)
+#     # The prompt output should be a dict for a single email.
+#     # JsonOutputParser can try to parse to GeneratedEmail if the LLM output keys match.
+#     # However, GeneratedEmail in graph_state.py includes influencerId and Name, which the prompt might not return.
+#     # Let's parse to a dict first, then construct GeneratedEmail.
+#     email_chain = email_prompt | llm | JsonOutputParser()
+
+#     product_input_for_prompt = product_info_dict.copy()
+#     if product_tags_obj:
+#         product_input_for_prompt.update(product_tags_obj.model_dump())
+
+#     for influencer_match_obj in selected_influencers_list:
+#         influencer_id = influencer_match_obj.influencerId
+#         influencer_name = influencer_match_obj.influencerName
+#         print(f"LG Node:   Generating email for: {influencer_name} ({influencer_id})")
+
+#         profile_obj = influencer_profiles_map.get(influencer_id)
+#         if not profile_obj:
+#             print(f"LG Node:     Warning: Profile not found for {influencer_name}. Cannot generate email.")
+#             errors.append(f"Profile missing for selected influencer {influencer_name}.")
+#             continue
+        
+#         profile_dict_for_prompt = profile_obj.model_dump()
+#         # Ensure prompt has access to name if it uses {influencerName} in the template for personalization
+#         profile_dict_for_prompt['influencerName'] = influencer_name 
+#         profile_dict_for_prompt['influencerId'] = influencer_id
+
+#         try:
+#             input_dict = {
+#                 "product_info": json.dumps(product_input_for_prompt, ensure_ascii=False, indent=2),
+#                 "influencer_profile": json.dumps(profile_dict_for_prompt, ensure_ascii=False, indent=2)
+#             }
+#             # LLM returns a dict like {"email_subject": "...", "email_body": "..."}
+#             parsed_email_dict = email_chain.invoke(input_dict)
+
+#             if parsed_email_dict and isinstance(parsed_email_dict, dict) and \
+#                "email_subject" in parsed_email_dict and "email_body" in parsed_email_dict:
+#                 print(f"LG Node:     Email generated successfully for {influencer_name}.")
+#                 # Construct GeneratedEmail Pydantic model
+#                 email_obj = GeneratedEmail(
+#                     influencerId=influencer_id,
+#                     influencerName=influencer_name,
+#                     email_subject=parsed_email_dict["email_subject"],
+#                     email_body=parsed_email_dict["email_body"]
+#                 )
+#                 generated_emails_list.append(email_obj)
+#             else:
+#                 print(f"LG Node:     Email generation failed or invalid format for {influencer_name}.")
+#                 errors.append(f"Email generation failed for {influencer_name}.")
+#         except Exception as e:
+#             print(f"LG Node:     Error generating email for {influencer_name}: {e}")
+#             errors.append(f"Email generation error for {influencer_name}: {e}")
+    
+#     return {"generated_emails": generated_emails_list, "error_messages": errors}
 
 
 # --- Conditional Edge Logic ---
@@ -406,6 +517,17 @@ influcencer_analysis_builder.add_edge(START, "analyze_influencers_platforms_node
 influcencer_analysis_builder.add_edge("generate_influencer_profiles_node", END)
 influencer_app= influcencer_analysis_builder.compile()
 print("Influencer analysis app compiled successfully!")
+
+
+# --- match influencer workflow ---
+recommend_influencer_builder = StateGraph(MarketingWorkFlowState)
+recommend_influencer_builder.add_node("match_influencers_node", match_influencers_node)
+recommend_influencer_builder.add_node("filter_matches_node", filter_matches_node)
+recommend_influencer_builder.add_edge(START, "match_influencers_node")
+recommend_influencer_builder.add_edge("filter_matches_node", END)
+recommend_influencer_app = recommend_influencer_builder.compile()
+print("Match influencer app compiled successfully!")
+
 
 # --- Compile Marketing Workflow ---
 workflow_builder = StateGraph(MarketingWorkFlowState)
@@ -493,3 +615,11 @@ print("Intent analysis workflow compiled successfully!")
 
 
 # %%
+# --- create email workflow ---
+generate_emails_builder = StateGraph(EmailGenerationState)
+generate_emails_builder.add_node("generate_emails_node", generate_emails_node)
+generate_emails_builder.add_edge(START, "generate_emails_node")
+generate_emails_builder.add_edge("generate_emails_node", END)
+
+generate_emails_app = generate_emails_builder.compile()
+print("Email generation workflow compiled successfully!")
