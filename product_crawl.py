@@ -20,6 +20,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import (
     StaleElementReferenceException, NoSuchElementException, TimeoutException
 )
+from selenium.webdriver.chrome.service import Service as ChromeService # Updated import
+from webdriver_manager.chrome import ChromeDriverManager # Add this import
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 import uuid # For generating job IDs
@@ -79,6 +81,7 @@ class AmazonCrawler:
                 self.browser = None
 
         self.logger.info("Initializing browser...")
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
@@ -90,6 +93,7 @@ class AmazonCrawler:
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument(f"user-agent={user_agent}")
         
         executable_path = None # Will store the path if found manually
 
@@ -132,15 +136,20 @@ class AmazonCrawler:
                         self.logger.info(f"Found executable Linux ChromeDriver at: {executable_path}")
                         break
         elif os_platform == "windows":
-            windows_driver_paths = [
-                Path(BASE_DIR) / "chromedriver-win64" / "chromedriver.exe",
-                Path(BASE_DIR) / "chromedriver-win64" / "chromedriver-win64" / "chromedriver.exe"
-            ]
-            for p in windows_driver_paths:
-                if p.exists() and p.is_file():
-                    executable_path = str(p)
-                    self.logger.info(f"Found Windows ChromeDriver at: {executable_path}")
-                    break
+            service = ChromeService(ChromeDriverManager().install())
+
+            self.logger.info(f"--Attempting to use ChromeDriver managed by webdriver-manager")
+            self.browser = webdriver.Chrome(service=service, options=chrome_options)
+            self.logger.info("--Browser initialized successfully.")
+            # windows_driver_paths = [
+            #     Path(BASE_DIR) / "chromedriver-win64" / "chromedriver.exe",
+            #     Path(BASE_DIR) / "chromedriver-win64" / "chromedriver-win64" / "chromedriver.exe"
+            # ]
+            # for p in windows_driver_paths:
+            #     if p.exists() and p.is_file():
+            #         executable_path = str(p)
+            #         self.logger.info(f"Found Windows ChromeDriver at: {executable_path}")
+            #         break
         elif os_platform == "darwin": # macOS
             macos_driver_names = ["chromedriver", "chromedriver_mac64", "chromedriver_mac_arm64"]
             # Simplified: Check project relative first, then system paths like for Linux
