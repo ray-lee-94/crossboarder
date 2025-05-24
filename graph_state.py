@@ -16,11 +16,11 @@ class PlatformContentData(BaseModel):
 
 class PlatformAnalysisResult(BaseModel):
     # Matches output of social_media_analyst_Prompt
-    audienceGender: str
-    audienceAge: str
-    regionCountry: str
-    language: str
-    contentFormat: List[str]
+    audienceGender: str # 受众性别
+    audienceAge: str # 受众年龄
+    regionCountry: str # 地区国家
+    language: str # 语言
+    contentFormat: List[str] # 内容格式
     recentContentSummary: str
     videoStyle: str
     contentTone: str

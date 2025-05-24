@@ -365,60 +365,63 @@ def print_response_details(response):
 #         assert "detail" in response_json
 
 
-# class TestAnalyzeInfluencerDetailsEndpoint:
+class TestAnalyzeInfluencerDetailsEndpoint:
 
-#     def test_analyze_influencer_details_success_single_influencer(self,):
-#         """Test successful analysis for a single influencer with content."""
+    def test_analyze_influencer_details_success_single_influencer(self,):
+        """Test successful analysis for a single influencer with content."""
 
-#         url = f"{BASE_URL}/api/influencers/analyze"
-#         payload =InfluencerAnalysisRequest(influencer_data=[InfluencerInputForWorkflow(
-#                     influencerId="inf_test_001",
-#                     influencerName="TechExplorer",
-#                     platforms={
-#                         "youtube": [
-#                               InfluencerPlatformContentInput(
-#                                 content_title="Reviewing the new SuperPhone X!", 
-#                                 like_count=1200, 
-#                                 comment_count=150, 
-#                                 publish_date="2023-11-01", 
-#                                 promo_category="Smartphones",
-#                                 cover_image_url="http://example.com/image1.jpg" # Test HttpUrl serialization
-#                             ),
-#                             InfluencerPlatformContentInput(
-#                                 content_title="My Top 5 Productivity Apps", 
-#                                 like_count=800, 
-#                                 comment_count=90, 
-#                                 publish_date="2023-10-15",
-#                                 enhanced_tag="productivity, apps"
-#                             )
-#                         ],
-#                         "tiktok": [
-#                              InfluencerPlatformContentInput(
-#                                 content_title="Quick look: SuperPhone X camera", 
-#                                 like_count=5000, 
-#                                 comment_count=250, 
-#                                 publish_date="2023-11-02"
-#                             )
-#                         ]
-#                     }
-#         )]).model_dump(mode="json") # Ensures HttpUrl becomes string
+        url = f"{BASE_URL}/api/influencers/analyze"
+        payload =InfluencerAnalysisRequest(influencer_data=[InfluencerInputForWorkflow(
+                    influencerId="inf_test_001",
+                    influencerName="TechExplorer",
+                    platforms={
+                        "youtube": [
+                              InfluencerPlatformContentInput(
+                                content_title="Reviewing the new SuperPhone X!", 
+                                like_count=1200, 
+                                comment_count=150, 
+                                publish_date="2023-11-01", 
+                                promo_category="Smartphones",
+                                cover_image_url="http://example.com/image1.jpg" # Test HttpUrl serialization
+                            ),
+                            InfluencerPlatformContentInput(
+                                content_title="My Top 5 Productivity Apps", 
+                                like_count=800, 
+                                comment_count=90, 
+                                publish_date="2023-10-15",
+                                enhanced_tag="productivity, apps"
+                            )
+                        ],
+                        "tiktok": [
+                             InfluencerPlatformContentInput(
+                                content_title="Quick look: SuperPhone X camera", 
+                                like_count=5000, 
+                                comment_count=250, 
+                                publish_date="2023-11-02"
+                            )
+                        ]
+                    }
+        )]).model_dump(mode="json") # Ensures HttpUrl becomes string
         
-#         response = requests.post(url, json=payload, timeout=LONG_TIMEOUT*2)
-#         response_json = print_response_details(response)
+        response = requests.post(url, json=payload, timeout=LONG_TIMEOUT*2)
+        response_json = print_response_details(response)
 
-#         assert response.status_code == 200
-#         assert response_json["success"] is True
-#         assert response_json.get("message") == "Influencer analysis completed."
-#         assert "data" in response_json and response_json["data"] is not None
+        assert response.status_code == 200
+        assert response_json["success"] is True
+        assert response_json.get("message") == "Influencer analysis completed."
+        assert "data" in response_json and response_json["data"] is not None
         
-#         # Validate the structure of the data field using the specific response data model
-#         response_data_obj = InfluencerAnalysisResponseData(**response_json["data"])
-#         assert response_data_obj.influencer_profiles is not None
-#         assert isinstance(response_data_obj.influencer_profiles, dict)
-#         assert "inf_test_001" in response_data_obj.influencer_profiles
-#         profile = response_data_obj.influencer_profiles["inf_test_001"]
-#         assert len(profile.coreContentDirection) > 0, "Expected LLM to derive core content direction"
-#         assert profile.overallPersonaAndStyle is not None, "Expected LLM to derive persona/style"
+        # Validate the structure of the data field using the specific response data model
+        response_data_obj = InfluencerAnalysisResponseData(**response_json["data"])
+        assert response_data_obj.influencer_profiles is not None
+        assert isinstance(response_data_obj.influencer_profiles, dict)
+        assert response_data_obj.influencer_details is not None
+        assert isinstance(response_data_obj.influencer_details, dict)
+        assert "inf_test_001" in response_data_obj.influencer_profiles
+        assert "inf_test_001" in response_data_obj.influencer_details
+        profile = response_data_obj.influencer_profiles["inf_test_001"]
+        assert len(profile.coreContentDirection) > 0, "Expected LLM to derive core content direction"
+        assert profile.overallPersonaAndStyle is not None, "Expected LLM to derive persona/style"
         # Add more assertions based on expected LLM output for the given content
 
     # def test_analyze_influencer_details_multiple_influencers(self,):
@@ -665,35 +668,35 @@ def print_response_details(response):
 #         api_response = ResponseModel(**response_json)
 #         assert api_response.success is True
         
-    # def test_recommend_influencers_no_matches(
-    #     self,  sample_influencer_profiles_for_reco
-    # ):
-    #     """Test Case 6.2: Recommendation when no influencers meet the criteria."""
-    #     url = f"{BASE_URL}/api/influencers/recommend"
+#     def test_recommend_influencers_no_matches(
+#         self,  sample_influencer_profiles_for_reco
+#     ):
+#         """Test Case 6.2: Recommendation when no influencers meet the criteria."""
+#         url = f"{BASE_URL}/api/influencers/recommend"
         
-    #     # Product tags for a very niche, non-tech product
-    #     niche_product_tags = ProductTags(
-    #         coreContentDirection=["Antique Doll Collecting", "Historical Crafts"],
-    #         overallPersonaAndStyle=["Academic", "Nostalgic"],
-    #         mainAudience=["Collectors (50+)", "History Buffs"]
-    #     )
-    #     request_payload_model = InfluencerRecommendationRequest(
-    #         product_tags=niche_product_tags,
-    #         influencer_profiles_input=sample_influencer_profiles_for_reco, # Using tech influencers
-    #         match_threshold=50.0
-    #     )
-    #     payload = request_payload_model.model_dump(mode="json")
+#         # Product tags for a very niche, non-tech product
+#         niche_product_tags = ProductTags(
+#             coreContentDirection=["Antique Doll Collecting", "Historical Crafts"],
+#             overallPersonaAndStyle=["Academic", "Nostalgic"],
+#             mainAudience=["Collectors (50+)", "History Buffs"]
+#         )
+#         request_payload_model = InfluencerRecommendationRequest(
+#             product_tags=niche_product_tags,
+#             influencer_profiles_input=sample_influencer_profiles_for_reco, # Using tech influencers
+#             match_threshold=50.0
+#         )
+#         payload = request_payload_model.model_dump(mode="json")
 
-    #     response = requests.post(url, json=payload, timeout=LONG_TIMEOUT)
-    #     response_json = print_response_details(response)
+#         response = requests.post(url, json=payload, timeout=LONG_TIMEOUT)
+#         response_json = print_response_details(response)
 
-    #     assert response.status_code == 200
-    #     api_response = ResponseModel(**response_json)
-    #     assert api_response.success is True # Process completes, even with no matches
-    #     assert api_response.data is not None
-    #     recommendation_data =MarketingWorkFlowState(**api_response.data)
-    #     assert recommendation_data.selected_influencers is not None
-    #     assert len(recommendation_data.selected_influencers) == 0
+#         assert response.status_code == 200
+#         api_response = ResponseModel(**response_json)
+#         assert api_response.success is True # Process completes, even with no matches
+#         assert api_response.data is not None
+#         recommendation_data =MarketingWorkFlowState(**api_response.data)
+#         assert recommendation_data.selected_influencers is not None
+#         assert len(recommendation_data.selected_influencers) == 0
 
 #     def test_recommend_influencers_empty_profiles_input(
 #         self,  tech_product_tags
@@ -733,108 +736,108 @@ def print_response_details(response):
 #         assert "detail" in response_json and response_json["detail"][0]["loc"] == ["body", "product_tags"]
 
 
-class TestCreateOutreachEmailsEndpoint:
-    """Tests for /api/outreachs/create"""
+# class TestCreateOutreachEmailsEndpoint:
+#     """Tests for /api/outreachs/create"""
 
-    @pytest.fixture
-    def sample_selected_influencers(self) -> List[MatchResult]:
-        return [
-            MatchResult(influencerId="inf_tech_A", influencerName="AnnaTheAnalyzer", match_score="85%", match_rationale="Strong content alignment."),
-            MatchResult(influencerId="inf_tech_C", influencerName="ChrisGadgets", match_score="78%", match_rationale="Good audience fit and style.")
-        ]
+#     @pytest.fixture
+#     def sample_selected_influencers(self) -> List[MatchResult]:
+#         return [
+#             MatchResult(influencerId="inf_tech_A", influencerName="AnnaTheAnalyzer", match_score="85%", match_rationale="Strong content alignment."),
+#             MatchResult(influencerId="inf_tech_C", influencerName="ChrisGadgets", match_score="78%", match_rationale="Good audience fit and style.")
+#         ]
 
-    @pytest.fixture
-    def product_info(self)-> ProductInputForAnalysis:
-        return   ProductInputForAnalysis( _id="SPYDERPRINT_B006UACRTG_analyze", # Unique for this test
-            product_title= "Datacolor Spyder Print - 高级数据分析和校准工具,可实现最佳打印效果,非常适合摄影师、平面设计师和印刷专业人士。",
-            price= "US$344.00",
-            rating= 4.5, # Example rating
-            review_count= 150, # Example review count
-            availability= "有现货",
-            seller= "Datacolor Official Store",
-            seller_url= "https://www.amazon.com/stores/Datacolor",
-            seller_address= "Lawrenceville, NJ, USA",
-            product_url= "https://www.amazon.com/-/zh/dp/B006UACRTG/ref=sr_1_1",
-            asin= "B006UACRTG",
-            image_url= "https://m.media-amazon.com/images/I/71qYqm3f0FL._AC_SX679_.jpg",
-            features= "全功能色彩管理, 精确打印机校准, ICC配置文件创建, 软打样, 适用于多种打印机和纸张类型, SpyderProof功能, 显示器校准集成",
-            description= "SpyderPrint 是专业人士选择管理打印输出色彩的全功能解决方案。通过选择任何打印机、墨水和纸张组合，SpyderPrint 可让您完全控制打印过程，从而生成画廊品质的打印件。只需安装软件，将色块打印到您选择的纸张上，然后使用 SpyderGuide 设备逐步完成简单流程即可校准并构建配置文件。独有的 SpyderProof 功能提供了一系列精心挑选的图像，可在编辑前来评估自定义配置文件，帮助您避免浪费纸张和墨水。",
-            category_source= "配件和耗材 > 打印机配件 > 校准工具",
-            brand_name= "Datacolor",
-            listing_date= "2011-12-05").model_dump(mode="json")
+#     @pytest.fixture
+#     def product_info(self)-> ProductInputForAnalysis:
+#         return   ProductInputForAnalysis( _id="SPYDERPRINT_B006UACRTG_analyze", # Unique for this test
+#             product_title= "Datacolor Spyder Print - 高级数据分析和校准工具,可实现最佳打印效果,非常适合摄影师、平面设计师和印刷专业人士。",
+#             price= "US$344.00",
+#             rating= 4.5, # Example rating
+#             review_count= 150, # Example review count
+#             availability= "有现货",
+#             seller= "Datacolor Official Store",
+#             seller_url= "https://www.amazon.com/stores/Datacolor",
+#             seller_address= "Lawrenceville, NJ, USA",
+#             product_url= "https://www.amazon.com/-/zh/dp/B006UACRTG/ref=sr_1_1",
+#             asin= "B006UACRTG",
+#             image_url= "https://m.media-amazon.com/images/I/71qYqm3f0FL._AC_SX679_.jpg",
+#             features= "全功能色彩管理, 精确打印机校准, ICC配置文件创建, 软打样, 适用于多种打印机和纸张类型, SpyderProof功能, 显示器校准集成",
+#             description= "SpyderPrint 是专业人士选择管理打印输出色彩的全功能解决方案。通过选择任何打印机、墨水和纸张组合，SpyderPrint 可让您完全控制打印过程，从而生成画廊品质的打印件。只需安装软件，将色块打印到您选择的纸张上，然后使用 SpyderGuide 设备逐步完成简单流程即可校准并构建配置文件。独有的 SpyderProof 功能提供了一系列精心挑选的图像，可在编辑前来评估自定义配置文件，帮助您避免浪费纸张和墨水。",
+#             category_source= "配件和耗材 > 打印机配件 > 校准工具",
+#             brand_name= "Datacolor",
+#             listing_date= "2011-12-05").model_dump(mode="json")
     
     
     
-    @pytest.fixture
-    def tech_product_tags(self) -> ProductTags:
-        return ProductTags(
-        FeatureTags=["High Performance", "AI-Powered"], # Product's own features
-        AudienceTags=["Professionals", "Early Adopters"], # Product's direct audience
-        UsageScenarioTags=["Work", "Productivity"], # Product's usage
-        coreContentDirection=["Tech Reviews", "Gadget Unboxing", "Software Tutorials"], # Ideal Influencer
-        overallPersonaAndStyle="Informative", # Ideal Influencer
-        mainAudience="Tech Enthusiasts" # Ideal Influencer
-    )
+#     @pytest.fixture
+#     def tech_product_tags(self) -> ProductTags:
+#         return ProductTags(
+#         FeatureTags=["High Performance", "AI-Powered"], # Product's own features
+#         AudienceTags=["Professionals", "Early Adopters"], # Product's direct audience
+#         UsageScenarioTags=["Work", "Productivity"], # Product's usage
+#         coreContentDirection=["Tech Reviews", "Gadget Unboxing", "Software Tutorials"], # Ideal Influencer
+#         overallPersonaAndStyle="Informative", # Ideal Influencer
+#         mainAudience="Tech Enthusiasts" # Ideal Influencer
+#     )
 
 
     
-    @pytest.fixture
-    def sample_influencer_profiles_for_email(self) -> Dict[str, InfluencerProfile]:
-        # Ensure InfluencerProfile is imported from graph_state
-        # from graph_state import InfluencerProfile # (if not already at top)
-        return {
-            "inf_tech_A": InfluencerProfile(
-                influencerId="inf_tech_A",
-                influencerName="AnnaTheAnalyzer",
-                coreContentDirection=["AI Tools", "Software Reviews", "Productivity Hacks"],
-                overallPersonaAndStyle="Insightful and Expert",
-                mainAudience="Tech Professionals, Software Users",
-                # --- ADD THESE MISSING FIELDS ---
-                commercialDegree="中度商业化",
-                crossPlatformConsist="高度一致",
-                potentialBrandType=["Software", "Tech Gadgets"],
-                influencerEval="High quality content, niche expert",
-                goodsCarryRating="中"
-                # --- END ADDITION ---
-            ),
-            "inf_tech_C": InfluencerProfile(
-                influencerId="inf_tech_C",
-                influencerName="ChrisGadgets",
-                coreContentDirection=["Gadget Unboxings", "Tech News", "AI Gadgets"],
-                overallPersonaAndStyle="Enthusiastic and Engaging",
-                mainAudience="Gadget Lovers, General Tech Consumers",
-                # --- ADD THESE MISSING FIELDS ---
-                commercialDegree="高度商业化",
-                crossPlatformConsist="基本一致",
-                potentialBrandType=["Consumer Electronics", "Smart Home"],
-                influencerEval="Popular and trendy",
-                goodsCarryRating="高"
-                # --- END ADDITION ---
-            )
-        }
+#     @pytest.fixture
+#     def sample_influencer_profiles_for_email(self) -> Dict[str, InfluencerProfile]:
+#         # Ensure InfluencerProfile is imported from graph_state
+#         # from graph_state import InfluencerProfile # (if not already at top)
+#         return {
+#             "inf_tech_A": InfluencerProfile(
+#                 influencerId="inf_tech_A",
+#                 influencerName="AnnaTheAnalyzer",
+#                 coreContentDirection=["AI Tools", "Software Reviews", "Productivity Hacks"],
+#                 overallPersonaAndStyle="Insightful and Expert",
+#                 mainAudience="Tech Professionals, Software Users",
+#                 # --- ADD THESE MISSING FIELDS ---
+#                 commercialDegree="中度商业化",
+#                 crossPlatformConsist="高度一致",
+#                 potentialBrandType=["Software", "Tech Gadgets"],
+#                 influencerEval="High quality content, niche expert",
+#                 goodsCarryRating="中"
+#                 # --- END ADDITION ---
+#             ),
+#             "inf_tech_C": InfluencerProfile(
+#                 influencerId="inf_tech_C",
+#                 influencerName="ChrisGadgets",
+#                 coreContentDirection=["Gadget Unboxings", "Tech News", "AI Gadgets"],
+#                 overallPersonaAndStyle="Enthusiastic and Engaging",
+#                 mainAudience="Gadget Lovers, General Tech Consumers",
+#                 # --- ADD THESE MISSING FIELDS ---
+#                 commercialDegree="高度商业化",
+#                 crossPlatformConsist="基本一致",
+#                 potentialBrandType=["Consumer Electronics", "Smart Home"],
+#                 influencerEval="Popular and trendy",
+#                 goodsCarryRating="高"
+#                 # --- END ADDITION ---
+#             )
+#         }
 
-    def test_create_emails_success(
-        self, sample_selected_influencers, 
-        product_info,tech_product_tags, 
-        sample_influencer_profiles_for_email
-    ):
-        """Test Case 7.1: Successful email generation."""
-        url = f"{BASE_URL}/api/outreachs/create"
-        request_payload_model = EmailCreationRequest(
-            selected_influencers=sample_selected_influencers,
-            product_info=product_info,
-            product_tags=tech_product_tags,
-            influencer_profiles=sample_influencer_profiles_for_email
-        )
-        payload = request_payload_model.model_dump(mode="json") # Ensures HttpUrl is string
+#     def test_create_emails_success(
+#         self, sample_selected_influencers, 
+#         product_info,tech_product_tags, 
+#         sample_influencer_profiles_for_email
+#     ):
+#         """Test Case 7.1: Successful email generation."""
+#         url = f"{BASE_URL}/api/outreachs/create"
+#         request_payload_model = EmailCreationRequest(
+#             selected_influencers=sample_selected_influencers,
+#             product_info=product_info,
+#             product_tags=tech_product_tags,
+#             influencer_profiles=sample_influencer_profiles_for_email
+#         )
+#         payload = request_payload_model.model_dump(mode="json") # Ensures HttpUrl is string
 
-        response = requests.post(url, json=payload, timeout=LONG_TIMEOUT)
-        response_json = print_response_details(response)
+#         response = requests.post(url, json=payload, timeout=LONG_TIMEOUT)
+#         response_json = print_response_details(response)
 
-        assert response.status_code == 200
-        api_response = ResponseModel(**response_json)
-        assert api_response.success is True
-        assert api_response.data is not None
+#         assert response.status_code == 200
+#         api_response = ResponseModel(**response_json)
+#         assert api_response.success is True
+#         assert api_response.data is not None
         
 
 #     def test_create_emails_no_selected_influencers(

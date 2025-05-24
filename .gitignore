@@ -10,3 +10,4 @@ wheels/
 .venv
 .env
 logs_api
+nohup.out

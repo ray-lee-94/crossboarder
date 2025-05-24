@@ -200,7 +200,7 @@ def generate_influencer_profiles_node(state: MarketingWorkFlowState) -> dict:
             print(f"LG Node:     Error generating profile for {influencer_name}: {e}")
             errors.append(f"Profile generation error for {influencer_name}: {e}")
     
-    return {"influencer_profiles": all_generated_profiles, "error_messages": errors}
+    return {"influencer_profiles": all_generated_profiles, "error_messages": errors,"platform_details_for_influencer":platform_analysis_map}
 
 
 

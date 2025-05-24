@@ -137,6 +137,7 @@ class InfluencerProfileOutput(BaseModel): # More specific name for the output pr
 
 class InfluencerAnalysisResponseData(BaseModel):
     influencer_profiles: Optional[Dict[str, InfluencerProfileOutput]] = None # Key: influencerId
+    influencer_details: Optional[Dict[str, Dict[str, Any]]] = None # Key: influencerId, Value: platform details
 
 # --- Full Marketing Workflow API Models ---
 class MarketingWorkflowRequest(BaseModel):
@@ -387,12 +388,14 @@ async def analyze_influencer_details(request_data: InfluencerAnalysisRequest):
         errors = final_state_dict.get("error_messages", [])
         # influencer_profiles is Dict[str, InfluencerProfile Pydantic model]
         profiles_output = final_state_dict.get("influencer_profiles") 
+        details_output = final_state_dict.get("platform_analysis")
+        print("################### ",details_output)
 
         response_data = None
         if profiles_output:
              # No need to model_dump here if InfluencerAnalysisResponseData expects Pydantic models
             print("Influencer profiles output:", profiles_output)
-            response_data =InfluencerAnalysisResponseData(influencer_profiles=profiles_output)
+            response_data =InfluencerAnalysisResponseData(influencer_profiles=profiles_output,influencer_details=details_output)
 
 
         if errors and not profiles_output: # Only errors
